@@ -1,4 +1,4 @@
-import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield } from "lucide-react";
+import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +20,7 @@ const mainItems = [
   { title: "Live Sessions", url: "/session", icon: Video },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Forum", url: "/forum", icon: MessageSquare },
+  { title: "Study Groups", url: "/study-groups", icon: UsersIcon },
 ];
 
 const bottomItems = [

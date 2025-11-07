@@ -1,21 +1,20 @@
-import Navigation from "@/components/Navigation";
+import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Video, Mic, MicOff, VideoOff, Code, MessageSquare, Users, Hand, Send } from "lucide-react";
+import { Video, Mic, MicOff, VideoOff, Code, MessageSquare, Users, Hand, Send, Monitor } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
+import { VideoConference } from "@/components/VideoConference";
 
 const WS_URL = import.meta.env.VITE_SUPABASE_URL?.replace('https://', 'wss://').replace('http://', 'ws://') + '/functions/v1/live-session' || 'ws://localhost:54321/functions/v1/live-session';
 
 const LiveSession = () => {
   const { user } = useAuth();
   const { isConnected, lastMessage, sendMessage } = useWebSocket(WS_URL);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
   const [code, setCode] = useState(`function fibonacci(n) {\n  // TODO: Implement fibonacci sequence\n  \n}`);
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([
@@ -26,6 +25,7 @@ const LiveSession = () => {
       isAI: true
     }
   ]);
+  const [showVideo, setShowVideo] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,10 +79,8 @@ const LiveSession = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-6">
+    <AppLayout>
+      <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -101,53 +99,8 @@ const LiveSession = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Video + Code Area */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Video Area */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 rounded-t-lg flex items-center justify-center relative overflow-hidden">
-                  <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-hero flex items-center justify-center text-white mb-4 mx-auto">
-                      <Video className="w-12 h-12" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">AI Instructor Sarah</h3>
-                    <p className="text-muted-foreground">
-                      Currently discussing: React Context API vs Redux
-                    </p>
-                  </div>
-                  
-                  {/* Connection Status */}
-                  <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-background/90 backdrop-blur-sm">
-                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
-                    <span className="text-sm font-medium">
-                      {isConnected ? 'Connected' : 'Connecting...'}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Video Controls */}
-                <div className="p-4 bg-card border-t border-border">
-                  <div className="flex items-center justify-center gap-3">
-                    <Button
-                      variant={isMuted ? "destructive" : "secondary"}
-                      size="icon"
-                      onClick={() => setIsMuted(!isMuted)}
-                    >
-                      {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    </Button>
-                    <Button
-                      variant={isVideoOff ? "destructive" : "secondary"}
-                      size="icon"
-                      onClick={() => setIsVideoOff(!isVideoOff)}
-                    >
-                      {isVideoOff ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
-                    </Button>
-                    <Button variant="secondary" size="icon">
-                      <Hand className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Video Conference */}
+            {showVideo && <VideoConference sessionId="demo-session" />}
 
             {/* Interactive Code Editor */}
             <Card>
@@ -236,8 +189,8 @@ const LiveSession = () => {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

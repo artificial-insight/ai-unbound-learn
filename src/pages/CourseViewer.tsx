@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import { AppLayout } from "@/components/AppLayout";
 import AITutor from "@/components/AITutor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -168,20 +168,17 @@ const CourseViewer = () => {
 
   if (!course || !enrollment) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
+      <AppLayout>
+        <div className="container mx-auto px-4 py-8">
           <p className="text-center text-muted-foreground">Loading course...</p>
-        </main>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-8">
+    <AppLayout>
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button variant="ghost" onClick={() => navigate('/courses')}>
             ← Back to Courses
@@ -350,8 +347,8 @@ const CourseViewer = () => {
             <AITutor courseId={courseId} />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

@@ -16,6 +16,9 @@ import CourseViewer from "./pages/CourseViewer";
 import EducatorDashboard from "./pages/EducatorDashboard";
 import Notifications from "./pages/Notifications";
 import Forum from "./pages/Forum";
+import ForumNewTopic from "./pages/ForumNewTopic";
+import ForumTopic from "./pages/ForumTopic";
+import StudyGroups from "./pages/StudyGroups";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/forum" element={<ProtectedRoute><Forum /></ProtectedRoute>} />
+            <Route path="/forum/new" element={<ProtectedRoute><ForumNewTopic /></ProtectedRoute>} />
+            <Route path="/forum/:topicId" element={<ProtectedRoute><ForumTopic /></ProtectedRoute>} />
+            <Route path="/study-groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator', 'institution']}><AdminDashboard /></ProtectedRoute>} />
