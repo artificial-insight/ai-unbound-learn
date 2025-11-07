@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Circle, PlayCircle, BookOpen, MessageSquare } from "lucide-react";
+import { CheckCircle2, Circle, PlayCircle, BookOpen, MessageSquare, Award } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -140,7 +140,7 @@ const CourseViewer = () => {
         .update({ progress_percentage: progressPercentage })
         .eq('id', enrollment.id);
 
-      // Check for achievements
+      // Check for achievements and update enrollment completion
       if (progressPercentage === 100) {
         await supabase.from('achievements').insert({
           user_id: user!.id,
@@ -149,6 +149,12 @@ const CourseViewer = () => {
           category: 'completion',
           badge_icon: '🎓',
         });
+
+        // Mark enrollment as completed
+        await supabase
+          .from('course_enrollments')
+          .update({ completed_at: new Date().toISOString() })
+          .eq('id', enrollment.id);
       }
 
       toast({
@@ -203,6 +209,16 @@ const CourseViewer = () => {
                     <span>{enrollment.progress_percentage}%</span>
                   </div>
                   <Progress value={enrollment.progress_percentage} />
+                  {enrollment.progress_percentage === 100 && enrollment.completed_at && (
+                    <Button
+                      onClick={() => navigate(`/certificate/${enrollment.id}`)}
+                      className="w-full mt-4"
+                      variant="outline"
+                    >
+                      <Award className="w-4 h-4 mr-2" />
+                      View Certificate
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
             </Card>

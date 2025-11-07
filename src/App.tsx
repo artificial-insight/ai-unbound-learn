@@ -20,6 +20,7 @@ import ForumNewTopic from "./pages/ForumNewTopic";
 import ForumTopic from "./pages/ForumTopic";
 import StudyGroups from "./pages/StudyGroups";
 import NotFound from "./pages/NotFound";
+import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/forum/:topicId" element={<ProtectedRoute><ForumTopic /></ProtectedRoute>} />
             <Route path="/study-groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
+            <Route path="/certificate/:enrollmentId" element={<ProtectedRoute><CertificateViewer /></ProtectedRoute>} />
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator', 'institution']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/institution" element={<ProtectedRoute allowedRoles={['institution']}><AdminDashboard /></ProtectedRoute>} />
