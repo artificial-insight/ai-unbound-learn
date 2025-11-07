@@ -1,276 +1,437 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { BookOpen, Brain, LineChart, Sparkles, Users, Code, GraduationCap, Zap, ArrowRight, Check, Play } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { 
+  Brain, 
+  Rocket, 
+  Users, 
+  Target, 
+  Award,
+  BookOpen,
+  Sparkles,
+  TrendingUp,
+  Clock,
+  Check,
+  ArrowRight,
+  Play,
+  Star
+} from "lucide-react";
 
 const Landing = () => {
+  const navigate = useNavigate();
+
+  const features = [
+    {
+      icon: Brain,
+      title: "AI-Powered Learning",
+      description: "Get personalized course recommendations and real-time guidance from our intelligent tutoring system."
+    },
+    {
+      icon: Target,
+      title: "Skill-Based Paths",
+      description: "Follow curated learning paths designed by experts to master specific skills and technologies."
+    },
+    {
+      icon: Users,
+      title: "Collaborative Learning",
+      description: "Join study groups, participate in forums, and learn together with peers worldwide."
+    },
+    {
+      icon: Award,
+      title: "Industry Certifications",
+      description: "Earn recognized certificates upon course completion to showcase your achievements."
+    },
+    {
+      icon: Clock,
+      title: "Learn at Your Pace",
+      description: "Access courses anytime, anywhere. Progress tracking keeps you motivated and on track."
+    },
+    {
+      icon: Sparkles,
+      title: "Interactive Content",
+      description: "Engage with hands-on exercises, quizzes, and real-world projects to reinforce learning."
+    }
+  ];
+
+  const stats = [
+    { value: "50K+", label: "Active Learners" },
+    { value: "1,200+", label: "Courses" },
+    { value: "95%", label: "Success Rate" },
+    { value: "24/7", label: "AI Support" }
+  ];
+
+  const benefits = [
+    "Learn from industry experts",
+    "Hands-on projects and exercises",
+    "Personalized learning paths",
+    "Real-time progress tracking",
+    "Community support & forums",
+    "Career advancement resources"
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="w-8 h-8 text-primary" />
-            <span className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              AI UnboundEd
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/auth">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link to="/auth">
-              <Button>Get Started</Button>
-            </Link>
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-display font-bold text-xl">AI UnboundEd</span>
+            </div>
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="#courses" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Courses</a>
+              <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</a>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" onClick={() => navigate("/auth")}>Sign In</Button>
+              <Button onClick={() => navigate("/auth")} className="bg-gradient-hero hover:opacity-90 transition-opacity shadow-glow">
+                Start Learning
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-background" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-background"></div>
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-accent opacity-20 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-hero opacity-20 blur-3xl rounded-full"></div>
         
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-primary/10 border border-primary/20">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">AI-Powered Learning Platform</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+        <div className="container mx-auto px-4 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8 animate-fade-in">
+              <Badge className="bg-gradient-hero text-white border-0 shadow-glow">
+                <Sparkles className="w-3 h-3 mr-1" />
+                AI-Powered Education
+              </Badge>
+              <h1 className="font-display font-bold text-5xl lg:text-7xl leading-tight">
+                Master Skills with{" "}
                 <span className="bg-gradient-hero bg-clip-text text-transparent">
-                  Learn Smarter
-                </span>
-                <br />
-                <span className="text-foreground">Not Harder</span>
+                  AI-Powered
+                </span>{" "}
+                Learning
               </h1>
-              
-              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto">
-                Experience personalized AI education with intelligent tutors, real-time analytics, 
-                and adaptive learning paths designed just for you.
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Experience personalized education with intelligent course recommendations, 
+                real-time AI tutoring, and interactive learning paths designed for your success.
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <Link to="/auth">
-                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 h-14 hover-scale">
-                    Start Learning Free
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate("/auth")} 
+                  className="bg-gradient-hero hover:opacity-90 transition-opacity shadow-glow text-lg h-14 px-8"
+                >
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="w-full sm:w-auto text-lg px-8 h-14 hover-scale group"
+                  className="border-2 text-lg h-14 px-8"
                 >
-                  <Play className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Play className="w-5 h-5 mr-2" />
                   Watch Demo
                 </Button>
               </div>
-
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-success" />
-                  <span>No credit card required</span>
+              <div className="flex items-center gap-8 pt-4">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-accent border-2 border-background"></div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-success" />
-                  <span>Free forever plan</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-success" />
-                  <span>50K+ active learners</span>
+                <div className="text-sm">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mt-1">
+                    Trusted by <span className="font-semibold text-foreground">50,000+</span> learners
+                  </p>
                 </div>
               </div>
             </div>
+            <div className="relative animate-scale-in">
+              <div className="relative z-10">
+                <Card className="overflow-hidden shadow-xl border-0 bg-gradient-card">
+                  <CardContent className="p-8">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 p-4 bg-background/50 rounded-lg backdrop-blur">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-hero flex items-center justify-center">
+                          <BookOpen className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">Web Development</h3>
+                          <p className="text-sm text-muted-foreground">Complete Bootcamp</p>
+                        </div>
+                        <Badge className="bg-success text-success-foreground">95%</Badge>
+                      </div>
+                      <div className="flex items-center gap-4 p-4 bg-background/50 rounded-lg backdrop-blur">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-accent flex items-center justify-center">
+                          <Brain className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">AI & Machine Learning</h3>
+                          <p className="text-sm text-muted-foreground">Advanced Track</p>
+                        </div>
+                        <Badge className="bg-warning text-warning-foreground">In Progress</Badge>
+                      </div>
+                      <div className="flex items-center gap-4 p-4 bg-background/50 rounded-lg backdrop-blur">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-premium flex items-center justify-center">
+                          <Target className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">Data Science</h3>
+                          <p className="text-sm text-muted-foreground">Professional Path</p>
+                        </div>
+                        <Badge variant="outline">Start</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-accent opacity-30 blur-2xl rounded-full"></div>
+              <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-hero opacity-30 blur-2xl rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Hero Image/Animation */}
-            <div className="mt-20 relative animate-scale-in">
-              <div className="absolute -inset-4 bg-gradient-hero opacity-20 blur-3xl rounded-3xl" />
-              <Card className="relative overflow-hidden shadow-2xl">
-                <div className="aspect-video bg-gradient-to-br from-primary/10 via-accent/10 to-background p-8 flex items-center justify-center">
-                  <div className="text-center">
-                    <Brain className="w-20 h-20 mx-auto mb-4 text-primary animate-pulse" />
-                    <p className="text-muted-foreground">Interactive Dashboard Preview</p>
-                  </div>
+      {/* Stats Section */}
+      <section className="py-12 bg-gradient-card border-y border-border">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <div className="font-display font-bold text-4xl lg:text-5xl bg-gradient-hero bg-clip-text text-transparent">
+                  {stat.value}
                 </div>
+                <div className="text-sm text-muted-foreground mt-2">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 lg:py-32">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4">Features</Badge>
+            <h2 className="font-display font-bold text-4xl lg:text-5xl mb-4">
+              Everything You Need to{" "}
+              <span className="bg-gradient-hero bg-clip-text text-transparent">Succeed</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Our platform combines cutting-edge AI technology with proven learning methodologies 
+              to deliver an unmatched educational experience.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card 
+                key={index} 
+                className="group hover:shadow-xl transition-all duration-300 border-border hover:border-primary/50 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="p-8">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-hero flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-glow">
+                    <feature.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="font-display font-semibold text-xl mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 lg:py-32 bg-gradient-card">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <Badge>Why Choose Us</Badge>
+              <h2 className="font-display font-bold text-4xl lg:text-5xl">
+                Accelerate Your{" "}
+                <span className="bg-gradient-accent bg-clip-text text-transparent">
+                  Career Growth
+                </span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Join thousands of professionals who have transformed their careers through 
+                our comprehensive learning platform. Get access to expert-led courses, 
+                personalized guidance, and a supportive community.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-gradient-hero flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-foreground">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/auth")}
+                className="bg-gradient-hero hover:opacity-90 transition-opacity shadow-glow"
+              >
+                Explore Courses
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+            <div className="relative">
+              <Card className="overflow-hidden shadow-2xl border-0">
+                <CardContent className="p-8 space-y-6">
+                  <div className="flex items-center justify-between p-4 bg-gradient-hero rounded-lg text-white">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="w-6 h-6" />
+                      <div>
+                        <div className="font-semibold">Your Progress</div>
+                        <div className="text-sm opacity-90">This Week</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold">+45%</div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Course Completion</span>
+                      <span className="text-sm text-muted-foreground">8/10</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full w-4/5 bg-gradient-hero"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Skill Level</span>
+                      <span className="text-sm text-muted-foreground">Advanced</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full w-full bg-gradient-accent"></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 pt-4">
+                    <div className="text-center p-3 bg-secondary rounded-lg">
+                      <div className="font-bold text-xl">24</div>
+                      <div className="text-xs text-muted-foreground">Hours</div>
+                    </div>
+                    <div className="text-center p-3 bg-secondary rounded-lg">
+                      <div className="font-bold text-xl">12</div>
+                      <div className="text-xs text-muted-foreground">Courses</div>
+                    </div>
+                    <div className="text-center p-3 bg-secondary rounded-lg">
+                      <div className="font-bold text-xl">8</div>
+                      <div className="text-xs text-muted-foreground">Certificates</div>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 md:py-32 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Why Choose AI UnboundEd?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Cutting-edge AI technology meets personalized education
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <FeatureCard
-              icon={<Brain className="w-8 h-8" />}
-              title="AI-Powered Tutors"
-              description="Get instant help from intelligent AI teachers that adapt to your learning style"
-              delay="0"
-            />
-            <FeatureCard
-              icon={<LineChart className="w-8 h-8" />}
-              title="Smart Analytics"
-              description="Track progress with detailed insights that drive measurable improvement"
-              delay="100"
-            />
-            <FeatureCard
-              icon={<Code className="w-8 h-8" />}
-              title="Interactive Coding"
-              description="Practice with live coding environments and instant AI feedback"
-              delay="200"
-            />
-            <FeatureCard
-              icon={<Sparkles className="w-8 h-8" />}
-              title="Personalized Paths"
-              description="AI-generated learning journeys customized to your goals"
-              delay="300"
-            />
-            <FeatureCard
-              icon={<Users className="w-8 h-8" />}
-              title="Community Learning"
-              description="Connect with peers and grow together in study groups"
-              delay="400"
-            />
-            <FeatureCard
-              icon={<Zap className="w-8 h-8" />}
-              title="24/7 Support"
-              description="AI assistant ready anytime to answer questions and review code"
-              delay="500"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-5" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto">
-            <StatCard number="50K+" label="Active Learners" />
-            <StatCard number="95%" label="Completion Rate" />
-            <StatCard number="4.9/5" label="Average Rating" />
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 md:py-32 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6 animate-fade-in">
-              <h2 className="text-4xl md:text-5xl font-bold">
-                Learn at Your Own Pace
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Our AI adapts to your schedule and learning speed, ensuring you master each concept before moving forward.
-              </p>
-              <ul className="space-y-4">
-                {[
-                  "Real-time progress tracking",
-                  "Personalized course recommendations",
-                  "Interactive quizzes and exercises",
-                  "Live coding sessions with AI",
-                  "Achievement badges and certifications"
-                ].map((benefit, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <Check className="w-5 h-5 text-success flex-shrink-0" />
-                    <span className="text-lg">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Card className="relative overflow-hidden shadow-xl hover-scale">
-              <div className="aspect-square bg-gradient-to-br from-primary/20 via-accent/20 to-background p-12 flex items-center justify-center">
-                <BookOpen className="w-32 h-32 text-primary animate-pulse" />
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
-        
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <GraduationCap className="w-20 h-20 mx-auto mb-8 text-white animate-scale-in" />
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-            Ready to Transform Your Learning?
-          </h2>
-          <p className="text-xl mb-10 max-w-2xl mx-auto text-white/90">
-            Join thousands of learners already experiencing the future of AI-powered education
-          </p>
-          <Link to="/auth">
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="text-lg px-10 h-14 hover-scale shadow-2xl"
-            >
-              Start Learning for Free
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+      <section className="py-20 lg:py-32">
+        <div className="container mx-auto px-4 lg:px-8">
+          <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-premium text-white relative">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
+            <CardContent className="p-12 lg:p-16 relative z-10">
+              <div className="max-w-3xl mx-auto text-center space-y-8">
+                <Rocket className="w-16 h-16 mx-auto" />
+                <h2 className="font-display font-bold text-4xl lg:text-5xl">
+                  Ready to Start Your Learning Journey?
+                </h2>
+                <p className="text-lg text-white/90 leading-relaxed">
+                  Join our community of learners and get access to thousands of courses, 
+                  expert instructors, and personalized AI guidance. Start learning today!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    size="lg" 
+                    onClick={() => navigate("/auth")}
+                    className="bg-white text-primary hover:bg-white/90 shadow-xl text-lg h-14 px-8"
+                  >
+                    Get Started Free
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-2 border-white text-white hover:bg-white/10 text-lg h-14 px-8"
+                  >
+                    Contact Sales
+                  </Button>
+                </div>
+                <p className="text-sm text-white/70">
+                  No credit card required • Free trial • Cancel anytime
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="w-6 h-6 text-primary" />
-              <span className="font-semibold">AI UnboundEd</span>
+      <footer className="border-t border-border bg-card">
+        <div className="container mx-auto px-4 lg:px-8 py-12">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-display font-bold text-xl">AI UnboundEd</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Empowering learners worldwide with AI-powered education.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2024 AI UnboundEd. All rights reserved.
-            </p>
+            <div>
+              <h4 className="font-semibold mb-4">Platform</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Courses</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Paths</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Certifications</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Pricing</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Security</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2025 AI UnboundEd School. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
   );
 };
-
-const FeatureCard = ({ icon, title, description, delay }: { 
-  icon: React.ReactNode; 
-  title: string; 
-  description: string;
-  delay: string;
-}) => (
-  <Card 
-    className="p-8 hover-scale cursor-pointer group transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-xl animate-fade-in"
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    <div className="w-16 h-16 rounded-2xl bg-gradient-hero flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
-      {icon}
-    </div>
-    <h3 className="text-2xl font-bold mb-3">{title}</h3>
-    <p className="text-muted-foreground leading-relaxed">{description}</p>
-  </Card>
-);
-
-const StatCard = ({ number, label }: { number: string; label: string }) => (
-  <div className="text-center animate-scale-in">
-    <div className="text-5xl md:text-6xl font-bold bg-gradient-hero bg-clip-text text-transparent mb-3">
-      {number}
-    </div>
-    <div className="text-xl text-muted-foreground">{label}</div>
-  </div>
-);
 
 export default Landing;

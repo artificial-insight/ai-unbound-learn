@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -58,14 +62,17 @@ export default {
       },
       backgroundImage: {
         'gradient-hero': 'var(--gradient-hero)',
-        'gradient-success': 'var(--gradient-success)',
+        'gradient-accent': 'var(--gradient-accent)',
         'gradient-card': 'var(--gradient-card)',
+        'gradient-premium': 'var(--gradient-premium)',
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',
         'md': 'var(--shadow-md)',
         'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
         'glow': 'var(--shadow-glow)',
+        'glow-accent': 'var(--shadow-glow-accent)',
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
