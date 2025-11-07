@@ -24,6 +24,9 @@ import BlogPost from "./pages/BlogPost";
 import Pricing from "./pages/Pricing";
 import Partners from "./pages/Partners";
 import CaseStudies from "./pages/CaseStudies";
+import Contact from "./pages/Contact";
+import Careers from "./pages/Careers";
+import Affiliate from "./pages/Affiliate";
 import NotFound from "./pages/NotFound";
 import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/partners" element={<Partners />} />
             <Route path="/case-studies" element={<CaseStudies />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/affiliate" element={<Affiliate />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
             <Route path="/session" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
