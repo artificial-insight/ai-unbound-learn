@@ -84,8 +84,9 @@ const Landing = () => {
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#courses" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Courses</a>
-              <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</a>
+              <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Testimonials</a>
+              <button onClick={() => navigate("/pricing")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</button>
+              <button onClick={() => navigate("/blog")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Blog</button>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => navigate("/auth")}>Sign In</Button>
@@ -254,8 +255,184 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Interactive Demo Section */}
+      <section className="py-20 lg:py-32 border-y border-border">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <Badge className="mb-4">Platform Demo</Badge>
+              <h2 className="font-display font-bold text-4xl lg:text-5xl mb-4">
+                Experience the{" "}
+                <span className="bg-gradient-hero bg-clip-text text-transparent">Future</span>{" "}
+                of Learning
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                See how our AI-powered platform adapts to your learning style in real-time
+              </p>
+            </div>
+
+            <div className="relative">
+              <Card className="overflow-hidden shadow-2xl border-0">
+                <div className="aspect-video bg-gradient-to-br from-primary/10 via-accent/10 to-background relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Button
+                      size="lg"
+                      className="bg-white text-primary hover:bg-white/90 shadow-xl group"
+                    >
+                      <Play className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
+                      Watch Interactive Demo
+                    </Button>
+                  </div>
+                  
+                  {/* Animated Elements */}
+                  <div className="absolute top-8 left-8 animate-fade-in" style={{ animationDelay: "200ms" }}>
+                    <Card className="p-4 bg-background/95 backdrop-blur border-primary/50 shadow-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-hero"></div>
+                        <div>
+                          <div className="font-semibold text-sm">AI Tutor</div>
+                          <div className="text-xs text-muted-foreground">Ready to help</div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  <div className="absolute top-8 right-8 animate-fade-in" style={{ animationDelay: "400ms" }}>
+                    <Card className="p-4 bg-background/95 backdrop-blur border-success/50 shadow-lg">
+                      <div className="flex items-center gap-3">
+                        <TrendingUp className="w-6 h-6 text-success" />
+                        <div>
+                          <div className="font-semibold text-sm">Progress: 87%</div>
+                          <div className="text-xs text-muted-foreground">Keep it up!</div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  <div className="absolute bottom-8 left-8 animate-fade-in" style={{ animationDelay: "600ms" }}>
+                    <Card className="p-4 bg-background/95 backdrop-blur border-accent/50 shadow-lg">
+                      <div className="flex items-center gap-3">
+                        <Users className="w-6 h-6 text-accent" />
+                        <div>
+                          <div className="font-semibold text-sm">Live Study Group</div>
+                          <div className="text-xs text-muted-foreground">12 members online</div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  <div className="absolute bottom-8 right-8 animate-fade-in" style={{ animationDelay: "800ms" }}>
+                    <Card className="p-4 bg-background/95 backdrop-blur border-warning/50 shadow-lg">
+                      <div className="flex items-center gap-3">
+                        <Award className="w-6 h-6 text-warning" />
+                        <div>
+                          <div className="font-semibold text-sm">New Achievement</div>
+                          <div className="text-xs text-muted-foreground">Course Master 🎓</div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 lg:py-32 bg-gradient-card">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4">Testimonials</Badge>
+            <h2 className="font-display font-bold text-4xl lg:text-5xl mb-4">
+              Loved by <span className="bg-gradient-hero bg-clip-text text-transparent">50,000+</span> Learners
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              See what our community has to say about their learning journey
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                name: "Alex Chen",
+                role: "Software Engineer",
+                company: "Google",
+                image: "👨‍💻",
+                quote: "This platform helped me transition from junior to senior engineer in just 6 months. The AI tutor was like having a personal mentor available 24/7.",
+                rating: 5
+              },
+              {
+                name: "Maria Rodriguez",
+                role: "Data Scientist",
+                company: "Microsoft",
+                image: "👩‍🔬",
+                quote: "The personalized learning paths are incredible. I learned Python, ML, and landed my dream job. Best investment I've ever made!",
+                rating: 5
+              },
+              {
+                name: "James Wilson",
+                role: "Full Stack Developer",
+                company: "Startup",
+                image: "👨‍💼",
+                quote: "Going from zero coding knowledge to building full-stack apps in 4 months seemed impossible. This platform made it happen.",
+                rating: 5
+              },
+              {
+                name: "Sarah Kim",
+                role: "UX Designer",
+                company: "Apple",
+                image: "👩‍🎨",
+                quote: "The interactive projects and real-world examples helped me build a portfolio that got me hired at my dream company.",
+                rating: 5
+              },
+              {
+                name: "David Thompson",
+                role: "Product Manager",
+                company: "Amazon",
+                image: "👨‍💻",
+                quote: "I needed to learn technical skills to better communicate with my dev team. The AI tutor explained complex concepts in simple terms.",
+                rating: 5
+              },
+              {
+                name: "Emma Davis",
+                role: "Blockchain Developer",
+                company: "Web3 Startup",
+                image: "👩‍💻",
+                quote: "The cutting-edge content on emerging technologies like blockchain and AI is what sets this platform apart. Always up to date!",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <Card
+                key={index}
+                className="hover:shadow-xl transition-all duration-300 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-1 text-primary">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-foreground leading-relaxed">"{testimonial.quote}"</p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border">
+                    <div className="text-3xl">{testimonial.image}</div>
+                    <div>
+                      <div className="font-semibold">{testimonial.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {testimonial.role} at {testimonial.company}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Benefits Section */}
-      <section className="py-20 lg:py-32 bg-gradient-card">
+      <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
