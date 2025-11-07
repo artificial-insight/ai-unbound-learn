@@ -8,15 +8,33 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User } from "lucide-react";
+import { Upload, User, Linkedin, Github, Twitter } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [fullName, setFullName] = useState("");
+  const [bio, setBio] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [twitterUrl, setTwitterUrl] = useState("");
+  const [learningPreferences, setLearningPreferences] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const availablePreferences = [
+    "AI & Machine Learning",
+    "Web Development",
+    "Data Science",
+    "Mobile Development",
+    "Cloud Computing",
+    "Cybersecurity",
+    "DevOps",
+    "Blockchain"
+  ];
 
   useEffect(() => {
     if (user) {
@@ -34,6 +52,12 @@ const Profile = () => {
     if (data) {
       setProfile(data);
       setFullName(data.full_name || '');
+      setBio(data.bio || '');
+      setLinkedinUrl(data.linkedin_url || '');
+      setGithubUrl(data.github_url || '');
+      setTwitterUrl(data.twitter_url || '');
+      const prefs = data.learning_preferences as { topics?: string[] } | null;
+      setLearningPreferences(prefs?.topics || []);
     }
   };
 
@@ -89,7 +113,14 @@ const Profile = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName })
+        .update({ 
+          full_name: fullName,
+          bio: bio,
+          linkedin_url: linkedinUrl,
+          github_url: githubUrl,
+          twitter_url: twitterUrl,
+          learning_preferences: { topics: learningPreferences }
+        })
         .eq('id', user!.id);
 
       if (error) throw error;
@@ -177,6 +208,79 @@ const Profile = () => {
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your full name"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell us about yourself..."
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <Label>Social Links</Label>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Linkedin className="w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={linkedinUrl}
+                        onChange={(e) => setLinkedinUrl(e.target.value)}
+                        placeholder="https://linkedin.com/in/username"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Github className="w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={githubUrl}
+                        onChange={(e) => setGithubUrl(e.target.value)}
+                        placeholder="https://github.com/username"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Twitter className="w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={twitterUrl}
+                        onChange={(e) => setTwitterUrl(e.target.value)}
+                        placeholder="https://twitter.com/username"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Learning Preferences</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Select topics you're interested in learning
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {availablePreferences.map((pref) => (
+                      <Badge
+                        key={pref}
+                        variant={learningPreferences.includes(pref) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setLearningPreferences(prev =>
+                            prev.includes(pref)
+                              ? prev.filter(p => p !== pref)
+                              : [...prev, pref]
+                          );
+                        }}
+                      >
+                        {pref}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
 
                 <Button onClick={handleUpdateProfile} disabled={loading} className="w-full">

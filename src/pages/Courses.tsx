@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { CourseRecommendations } from "@/components/CourseRecommendations";
 
 const Courses = () => {
   const { user } = useAuth();
@@ -177,30 +178,7 @@ const Courses = () => {
           </TabsContent>
 
           <TabsContent value="recommended" className="space-y-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="Advanced React Patterns"
-                description="Master advanced React concepts including hooks, context, and performance optimization"
-                level="Intermediate"
-                duration="6 hours"
-                students={1247}
-                rating={4.8}
-                progress={0}
-                recommended
-              />
-              <CourseCard
-                icon={<Database className="w-6 h-6" />}
-                title="RESTful API Design"
-                description="Learn to design and build scalable RESTful APIs with best practices"
-                level="Intermediate"
-                duration="4 hours"
-                students={892}
-                rating={4.7}
-                progress={0}
-                recommended
-              />
-            </div>
+            <CourseRecommendations />
           </TabsContent>
 
           <TabsContent value="enrolled" className="space-y-6">

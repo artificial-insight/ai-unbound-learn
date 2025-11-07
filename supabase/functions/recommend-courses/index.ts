@@ -50,6 +50,13 @@ serve(async (req) => {
 
     console.log("Generating recommendations for user:", user.id);
 
+    // Fetch user's profile with learning preferences
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("learning_preferences")
+      .eq("id", user.id)
+      .single();
+
     // Fetch user's enrolled courses
     const { data: enrollments } = await supabase
       .from("course_enrollments")
@@ -77,6 +84,7 @@ serve(async (req) => {
 
     // Prepare context for AI
     const userContext = {
+      learningPreferences: userProfile?.learning_preferences?.topics || [],
       enrolledCourses: enrollments?.map((e: any) => ({
         title: e.courses?.title,
         level: e.courses?.level,
@@ -99,6 +107,7 @@ Consider:
 2. Logical learning progression (don't jump from beginner to advanced)
 3. Complementary skills that enhance what they're learning
 4. Course categories that align with their interests
+5. User's stated learning preferences and topics of interest
 
 Return your response as a JSON array with this exact structure:
 [
@@ -108,7 +117,11 @@ Return your response as a JSON array with this exact structure:
   }
 ]`;
 
-    const userPrompt = `User's enrolled courses: ${JSON.stringify(
+    const userPrompt = `User's learning preferences: ${JSON.stringify(
+      userContext.learningPreferences
+    )}
+
+User's enrolled courses: ${JSON.stringify(
       userContext.enrolledCourses
     )}
 
