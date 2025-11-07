@@ -2,14 +2,81 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Video, Mic, MicOff, VideoOff, Code, MessageSquare, Users, Hand } from "lucide-react";
-import { useState } from "react";
+import { Video, Mic, MicOff, VideoOff, Code, MessageSquare, Users, Hand, Send } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { useAuth } from "@/hooks/useAuth";
+
+const WS_URL = import.meta.env.VITE_SUPABASE_URL?.replace('https://', 'wss://').replace('http://', 'ws://') + '/functions/v1/live-session' || 'ws://localhost:54321/functions/v1/live-session';
 
 const LiveSession = () => {
+  const { user } = useAuth();
+  const { isConnected, lastMessage, sendMessage } = useWebSocket(WS_URL);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [code, setCode] = useState(`function fibonacci(n) {\n  // TODO: Implement fibonacci sequence\n  \n}`);
+  const [chatMessage, setChatMessage] = useState('');
+  const [messages, setMessages] = useState<any[]>([
+    {
+      name: "AI Instructor Sarah",
+      message: "Welcome everyone! Today we'll explore state management patterns.",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isAI: true
+    }
+  ]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.type === 'code_update') {
+        setCode(lastMessage.code);
+      } else if (lastMessage.type === 'chat_message') {
+        setMessages(prev => [...prev, {
+          name: lastMessage.userName,
+          message: lastMessage.message,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isAI: false
+        }]);
+      }
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    sendMessage({
+      type: 'code_update',
+      code: newCode,
+      userId: user?.id
+    });
+  };
+
+  const handleSendMessage = () => {
+    if (!chatMessage.trim()) return;
+
+    const newMessage = {
+      name: user?.email?.split('@')[0] || "You",
+      message: chatMessage,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isAI: false
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+
+    sendMessage({
+      type: 'chat_message',
+      message: chatMessage,
+      userName: newMessage.name,
+      userId: user?.id
+    });
+
+    setChatMessage('');
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,10 +115,12 @@ const LiveSession = () => {
                     </p>
                   </div>
                   
-                  {/* AI Instructor Status */}
+                  {/* Connection Status */}
                   <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-background/90 backdrop-blur-sm">
-                    <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                    <span className="text-sm font-medium">AI Teaching Mode</span>
+                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
+                    <span className="text-sm font-medium">
+                      {isConnected ? 'Connected' : 'Connecting...'}
+                    </span>
                   </div>
                 </div>
                 
@@ -94,14 +163,16 @@ const LiveSession = () => {
               <CardContent>
                 <Textarea
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => handleCodeChange(e.target.value)}
                   className="font-mono text-sm min-h-[200px] bg-muted/30"
-                  placeholder="Write your code here..."
+                  placeholder="Write your code here... Changes sync in real-time!"
                 />
                 <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border">
-                  <div className="text-sm font-medium mb-2">Output:</div>
+                  <div className="text-sm font-medium mb-2">
+                    Collaborative Coding {isConnected ? '(Live)' : '(Offline)'}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    Ready to run your code...
+                    Code is synchronized across all participants in real-time
                   </div>
                 </div>
               </CardContent>
@@ -138,43 +209,28 @@ const LiveSession = () => {
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 <div className="flex-1 space-y-3 overflow-y-auto mb-4">
-                  <ChatMessage
-                    name="AI Instructor Sarah"
-                    message="Welcome everyone! Today we'll explore state management patterns."
-                    time="10:02 AM"
-                    isAI={true}
-                  />
-                  <ChatMessage
-                    name="John D."
-                    message="Excited to learn about Context API!"
-                    time="10:03 AM"
-                    isAI={false}
-                  />
-                  <ChatMessage
-                    name="AI Instructor Sarah"
-                    message="Great! Let's start with a quick review. Can anyone explain what state is in React?"
-                    time="10:04 AM"
-                    isAI={true}
-                  />
-                  <ChatMessage
-                    name="You"
-                    message="State is data that changes over time in a component"
-                    time="10:05 AM"
-                    isAI={false}
-                  />
-                  <ChatMessage
-                    name="AI Instructor Sarah"
-                    message="Excellent answer! State represents the dynamic data in your application. Now let's dive deeper..."
-                    time="10:05 AM"
-                    isAI={true}
-                  />
+                  {messages.map((msg, idx) => (
+                    <ChatMessage
+                      key={idx}
+                      name={msg.name}
+                      message={msg.message}
+                      time={msg.time}
+                      isAI={msg.isAI}
+                    />
+                  ))}
+                  <div ref={messagesEndRef} />
                 </div>
                 <div className="flex gap-2">
-                  <Textarea
+                  <Input
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
                     placeholder="Ask a question or share your thoughts..."
-                    className="min-h-[80px]"
+                    className="flex-1"
                   />
-                  <Button>Send</Button>
+                  <Button onClick={handleSendMessage} size="icon">
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>

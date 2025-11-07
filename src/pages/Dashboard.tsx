@@ -9,10 +9,14 @@ import Navigation from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -24,8 +28,32 @@ const Dashboard = () => {
         .then(({ data }) => {
           if (data) setProfile(data);
         });
+      
+      loadRecommendations();
     }
   }, [user]);
+
+  const loadRecommendations = async () => {
+    try {
+      setLoadingRecs(true);
+      const { data, error } = await supabase.functions.invoke('recommend-courses');
+      
+      if (error) throw error;
+      
+      if (data?.recommendations) {
+        setRecommendations(data.recommendations.slice(0, 2));
+      }
+    } catch (error: any) {
+      console.error('Error loading recommendations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load AI recommendations",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingRecs(false);
+    }
+  };
 
   const userName = profile?.full_name || user?.email?.split('@')[0] || 'User';
   return (
@@ -88,23 +116,32 @@ const Dashboard = () => {
               <CardDescription>Personalized based on your progress and goals</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <RecommendedCourse
-                title="Advanced React Patterns"
-                reason="Builds on your current JavaScript knowledge"
-                difficulty="Intermediate"
-                duration="6 hours"
-              />
-              <RecommendedCourse
-                title="RESTful API Design"
-                reason="Next step in your Full-Stack journey"
-                difficulty="Intermediate"
-                duration="4 hours"
-              />
-              <Link to="/courses">
-                <Button variant="outline" className="w-full">
-                  View All Recommendations
-                </Button>
-              </Link>
+              {loadingRecs ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading AI recommendations...
+                </div>
+              ) : recommendations.length > 0 ? (
+                <>
+                  {recommendations.map((rec, idx) => (
+                    <RecommendedCourse
+                      key={idx}
+                      title={rec.title}
+                      reason={rec.reason}
+                      difficulty={rec.level || "Intermediate"}
+                      duration={`${rec.duration || 6} hours`}
+                    />
+                  ))}
+                  <Link to="/courses">
+                    <Button variant="outline" className="w-full">
+                      View All Recommendations
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No recommendations available yet. Enroll in courses to get personalized suggestions!
+                </div>
+              )}
             </CardContent>
           </Card>
 

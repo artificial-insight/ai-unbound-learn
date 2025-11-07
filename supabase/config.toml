@@ -2,3 +2,6 @@ project_id = "qmqhjgfugaxediocqjcz"
 
 [functions.recommend-courses]
 verify_jwt = true
+
+[functions.live-session]
+verify_jwt = false

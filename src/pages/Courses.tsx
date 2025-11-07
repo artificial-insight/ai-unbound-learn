@@ -4,9 +4,97 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { Search, Clock, Users, Star, TrendingUp, Code, Palette, Database } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Courses = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadCourses();
+    if (user) {
+      loadEnrollments();
+    }
+  }, [user]);
+
+  const loadCourses = async () => {
+    const { data } = await supabase
+      .from('courses')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (data) setCourses(data);
+    setLoading(false);
+  };
+
+  const loadEnrollments = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('course_enrollments')
+      .select('*, courses(*)')
+      .eq('user_id', user.id);
+    
+    if (data) setEnrollments(data);
+  };
+
+  const handleEnroll = async (courseId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to enroll in courses",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setEnrolling(courseId);
+      
+      const { error } = await supabase
+        .from('course_enrollments')
+        .insert({
+          user_id: user.id,
+          course_id: courseId,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Enrolled Successfully",
+        description: "You're now enrolled in this course!",
+      });
+
+      loadEnrollments();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setEnrolling(null);
+    }
+  };
+
+  const isEnrolled = (courseId: string) => {
+    return enrollments.some(e => e.course_id === courseId);
+  };
+
+  const getEnrollmentProgress = (courseId: string) => {
+    const enrollment = enrollments.find(e => e.course_id === courseId);
+    return enrollment?.progress_percentage || 0;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -38,68 +126,29 @@ const Courses = () => {
           </TabsList>
 
           <TabsContent value="all" className="space-y-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="Advanced React Patterns"
-                description="Master advanced React concepts including hooks, context, and performance optimization"
-                level="Intermediate"
-                duration="6 hours"
-                students={1247}
-                rating={4.8}
-                progress={0}
-              />
-              <CourseCard
-                icon={<Database className="w-6 h-6" />}
-                title="RESTful API Design"
-                description="Learn to design and build scalable RESTful APIs with best practices"
-                level="Intermediate"
-                duration="4 hours"
-                students={892}
-                rating={4.7}
-                progress={0}
-              />
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="TypeScript Fundamentals"
-                description="Build type-safe applications with TypeScript from the ground up"
-                level="Beginner"
-                duration="5 hours"
-                students={2134}
-                rating={4.9}
-                progress={0}
-              />
-              <CourseCard
-                icon={<Palette className="w-6 h-6" />}
-                title="Modern CSS & Tailwind"
-                description="Create beautiful, responsive designs with modern CSS and Tailwind"
-                level="Beginner"
-                duration="4 hours"
-                students={1567}
-                rating={4.6}
-                progress={0}
-              />
-              <CourseCard
-                icon={<Database className="w-6 h-6" />}
-                title="Database Design & SQL"
-                description="Master relational database design and advanced SQL queries"
-                level="Intermediate"
-                duration="7 hours"
-                students={945}
-                rating={4.8}
-                progress={0}
-              />
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="Full-Stack JavaScript"
-                description="Build complete web applications with Node.js, Express, and React"
-                level="Advanced"
-                duration="12 hours"
-                students={3421}
-                rating={4.9}
-                progress={0}
-              />
-            </div>
+            {loading ? (
+              <div className="text-center py-12 text-muted-foreground">Loading courses...</div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    courseId={course.id}
+                    icon={<Code className="w-6 h-6" />}
+                    title={course.title}
+                    description={course.description}
+                    level={course.level}
+                    duration={`${course.duration_hours} hours`}
+                    students={0}
+                    rating={0}
+                    progress={getEnrollmentProgress(course.id)}
+                    enrolled={isEnrolled(course.id)}
+                    onEnroll={handleEnroll}
+                    enrolling={enrolling === course.id}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="recommended" className="space-y-6">
@@ -130,28 +179,31 @@ const Courses = () => {
           </TabsContent>
 
           <TabsContent value="enrolled" className="space-y-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="React Fundamentals"
-                description="Learn React from scratch and build your first applications"
-                level="Beginner"
-                duration="8 hours"
-                students={4521}
-                rating={4.9}
-                progress={68}
-              />
-              <CourseCard
-                icon={<Code className="w-6 h-6" />}
-                title="JavaScript ES6+"
-                description="Modern JavaScript features and best practices"
-                level="Intermediate"
-                duration="5 hours"
-                students={3215}
-                rating={4.8}
-                progress={92}
-              />
-            </div>
+            {enrollments.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                You haven't enrolled in any courses yet
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {enrollments.map((enrollment) => (
+                  <CourseCard
+                    key={enrollment.id}
+                    courseId={enrollment.course_id}
+                    icon={<Code className="w-6 h-6" />}
+                    title={enrollment.courses.title}
+                    description={enrollment.courses.description}
+                    level={enrollment.courses.level}
+                    duration={`${enrollment.courses.duration_hours} hours`}
+                    students={0}
+                    rating={0}
+                    progress={enrollment.progress_percentage}
+                    enrolled={true}
+                    onEnroll={handleEnroll}
+                    enrolling={false}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>
@@ -159,7 +211,7 @@ const Courses = () => {
   );
 };
 
-const CourseCard = ({ icon, title, description, level, duration, students, rating, progress, recommended }: any) => (
+const CourseCard = ({ courseId, icon, title, description, level, duration, students, rating, progress, recommended, enrolled, onEnroll, enrolling }: any) => (
   <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
     <CardHeader>
       <div className="flex items-start justify-between mb-2">
@@ -182,14 +234,6 @@ const CourseCard = ({ icon, title, description, level, duration, students, ratin
           <Clock className="w-4 h-4" />
           {duration}
         </div>
-        <div className="flex items-center gap-1">
-          <Users className="w-4 h-4" />
-          {students.toLocaleString()}
-        </div>
-        <div className="flex items-center gap-1">
-          <Star className="w-4 h-4 fill-warning text-warning" />
-          {rating}
-        </div>
       </div>
       
       <div className="flex items-center justify-between">
@@ -199,8 +243,18 @@ const CourseCard = ({ icon, title, description, level, duration, students, ratin
         )}
       </div>
 
-      <Button className="w-full">
-        {progress > 0 ? "Continue Learning" : "Enroll Now"}
+      {progress > 0 && (
+        <div className="space-y-2">
+          <Progress value={progress} className="h-2" />
+        </div>
+      )}
+
+      <Button 
+        className="w-full" 
+        onClick={() => !enrolled && onEnroll(courseId)}
+        disabled={enrolling || enrolled}
+      >
+        {enrolling ? "Enrolling..." : progress > 0 ? "Continue Learning" : enrolled ? "Enrolled" : "Enroll Now"}
       </Button>
     </CardContent>
   </Card>

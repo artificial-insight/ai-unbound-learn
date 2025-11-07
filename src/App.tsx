@@ -11,6 +11,7 @@ import Courses from "./pages/Courses";
 import LiveSession from "./pages/LiveSession";
 import Analytics from "./pages/Analytics";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
             <Route path="/session" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/institution" element={<ProtectedRoute allowedRoles={['institution']}><AdminDashboard /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

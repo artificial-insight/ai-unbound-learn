@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LayoutDashboard, BookOpen, Video, BarChart, LogOut, Menu } from "lucide-react";
+import { GraduationCap, LayoutDashboard, BookOpen, Video, BarChart, LogOut, Menu, User } from "lucide-react";
 import { useState } from "react";
 import {
   Sheet,
@@ -57,6 +57,12 @@ const Navigation = () => {
         <Button variant="ghost" className="justify-start w-full">
           <BarChart className="w-4 h-4 mr-2" />
           Analytics
+        </Button>
+      </Link>
+      <Link to="/profile" onClick={() => setOpen(false)}>
+        <Button variant="ghost" className="justify-start w-full">
+          <User className="w-4 h-4 mr-2" />
+          Profile
         </Button>
       </Link>
     </>
