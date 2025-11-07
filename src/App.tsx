@@ -27,6 +27,7 @@ import CaseStudies from "./pages/CaseStudies";
 import Contact from "./pages/Contact";
 import Careers from "./pages/Careers";
 import Affiliate from "./pages/Affiliate";
+import AffiliateDashboard from "./pages/AffiliateDashboard";
 import NotFound from "./pages/NotFound";
 import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/affiliate" element={<Affiliate />} />
+            <Route path="/affiliate-dashboard" element={<ProtectedRoute><AffiliateDashboard /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
             <Route path="/session" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 
@@ -37,25 +38,37 @@ const Contact = () => {
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/contact-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      // Submit to database
+      const { error: dbError } = await supabase
+        .from('contact_form_submissions')
+        .insert([{
+          name: data.name,
+          email: data.email,
+          subject: data.subject,
+          message: data.message,
+        }]);
+
+      if (dbError) throw dbError;
+
+      // Send email via edge function
+      const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
+        body: data,
       });
 
-      if (response.ok) {
-        toast({
-          title: 'Message sent!',
-          description: 'We\'ll get back to you as soon as possible.',
-        });
-        form.reset();
-      } else {
-        throw new Error('Failed to send message');
+      if (emailError) {
+        console.error('Email error:', emailError);
+        // Don't fail if email doesn't send, just log it
       }
-    } catch (error) {
+      
+      toast({
+        title: 'Message sent!',
+        description: 'We\'ll get back to you as soon as possible.',
+      });
+      form.reset();
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to send message. Please try again.',
+        description: error.message || 'Failed to send message. Please try again.',
         variant: 'destructive',
       });
     } finally {

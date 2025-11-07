@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navigation from '@/components/Navigation';
 import { DollarSign, Users, TrendingUp, Gift, Link as LinkIcon, Share2, Award, CheckCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const benefits = [
   {
@@ -90,9 +92,48 @@ const steps = [
 
 const Affiliate = () => {
   const [email, setEmail] = useState('');
+  const { toast } = useToast();
 
-  const handleJoin = () => {
-    console.log('Joining affiliate program with email:', email);
+  const handleJoin = async () => {
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Submit to database
+      const { error: dbError } = await supabase
+        .from('affiliate_applications')
+        .insert([{ email }]);
+
+      if (dbError) throw dbError;
+
+      // Send email via edge function
+      const { error: emailError } = await supabase.functions.invoke('process-affiliate-application', {
+        body: { email, name: email },
+      });
+
+      if (emailError) {
+        console.error('Email error:', emailError);
+      }
+
+      toast({
+        title: "Application Submitted!",
+        description: "We'll review your application and get back to you soon.",
+      });
+
+      setEmail('');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit application. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

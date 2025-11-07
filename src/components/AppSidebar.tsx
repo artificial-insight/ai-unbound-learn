@@ -1,4 +1,4 @@
-import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon } from "lucide-react";
+import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +21,12 @@ const mainItems = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Forum", url: "/forum", icon: MessageSquare },
   { title: "Study Groups", url: "/study-groups", icon: UsersIcon },
+];
+
+const publicItems = [
+  { title: "Contact", url: "/contact", icon: Mail },
+  { title: "Careers", url: "/careers", icon: Briefcase },
+  { title: "Affiliate Program", url: "/affiliate", icon: DollarSign },
 ];
 
 const bottomItems = [
@@ -87,6 +93,30 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+            More
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {publicItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
+                      activeClassName="bg-primary/10 text-primary font-semibold"
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
