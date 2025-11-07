@@ -37,11 +37,42 @@ interface Stats {
   activeUsers: number;
 }
 
+interface AffiliateApplication {
+  id: string;
+  name: string | null;
+  email: string;
+  website: string | null;
+  audience_description: string | null;
+  status: string;
+  referral_code: string | null;
+  created_at: string;
+}
+
+interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: string;
+  created_at: string;
+}
+
+interface NewsletterSubscription {
+  id: string;
+  email: string;
+  status: string;
+  subscribed_at: string;
+}
+
 const AdminDashboard = () => {
   const { toast } = useToast();
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalCourses: 0, totalEnrollments: 0, activeUsers: 0 });
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [affiliateApps, setAffiliateApps] = useState<AffiliateApplication[]>([]);
+  const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([]);
+  const [newsletterSubs, setNewsletterSubs] = useState<NewsletterSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -77,6 +108,16 @@ const AdminDashboard = () => {
 
       const { data: coursesData } = await supabase.from('courses').select('*').order('created_at', { ascending: false }).limit(100);
       if (coursesData) setCourses(coursesData);
+
+      const { data: affiliateData } = await supabase.from('affiliate_applications').select('*').order('created_at', { ascending: false });
+      if (affiliateData) setAffiliateApps(affiliateData);
+
+      const { data: contactData } = await supabase.from('contact_form_submissions').select('*').order('created_at', { ascending: false });
+      if (contactData) setContactSubmissions(contactData);
+
+      const { data: newsletterData } = await supabase.from('newsletter_subscriptions').select('*').order('subscribed_at', { ascending: false });
+      if (newsletterData) setNewsletterSubs(newsletterData);
+
       setLoading(false);
     } catch (error: any) {
       toast({ title: "Error", description: "Failed to load dashboard data", variant: "destructive" });
@@ -92,6 +133,36 @@ const AdminDashboard = () => {
   const filteredCourses = courses.filter((course) =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleApproveAffiliate = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('affiliate_applications')
+        .update({ status: 'approved', approved_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Affiliate application approved" });
+      loadDashboardData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to approve application", variant: "destructive" });
+    }
+  };
+
+  const handleRejectAffiliate = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('affiliate_applications')
+        .update({ status: 'rejected' })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Affiliate application rejected" });
+      loadDashboardData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to reject application", variant: "destructive" });
+    }
+  };
 
   return (
     <AppLayout>
@@ -124,6 +195,9 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="affiliates">Affiliate Applications</TabsTrigger>
+            <TabsTrigger value="contacts">Contact Submissions</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -193,6 +267,149 @@ const AdminDashboard = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="affiliates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Affiliate Applications</CardTitle>
+                <CardDescription>Review and manage affiliate program applications</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8">Loading...</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Website</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Referral Code</TableHead>
+                        <TableHead>Applied</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {affiliateApps.map((app) => (
+                        <TableRow key={app.id}>
+                          <TableCell>{app.name || 'N/A'}</TableCell>
+                          <TableCell>{app.email}</TableCell>
+                          <TableCell>{app.website || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Badge variant={app.status === 'approved' ? 'default' : app.status === 'rejected' ? 'destructive' : 'secondary'}>
+                              {app.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{app.referral_code || 'N/A'}</TableCell>
+                          <TableCell>{formatDistanceToNow(new Date(app.created_at), { addSuffix: true })}</TableCell>
+                          <TableCell>
+                            {app.status === 'pending' && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem onClick={() => handleApproveAffiliate(app.id)}>
+                                    Approve
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleRejectAffiliate(app.id)}>
+                                    Reject
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="contacts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Form Submissions</CardTitle>
+                <CardDescription>View messages from the contact form</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8">Loading...</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Subject</TableHead>
+                        <TableHead>Message</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Submitted</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contactSubmissions.map((submission) => (
+                        <TableRow key={submission.id}>
+                          <TableCell>{submission.name}</TableCell>
+                          <TableCell>{submission.email}</TableCell>
+                          <TableCell>{submission.subject}</TableCell>
+                          <TableCell className="max-w-xs truncate">{submission.message}</TableCell>
+                          <TableCell>
+                            <Badge variant={submission.status === 'new' ? 'default' : 'secondary'}>
+                              {submission.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatDistanceToNow(new Date(submission.created_at), { addSuffix: true })}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="newsletter">
+            <Card>
+              <CardHeader>
+                <CardTitle>Newsletter Subscriptions</CardTitle>
+                <CardDescription>Manage newsletter subscribers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8">Loading...</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Subscribed</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {newsletterSubs.map((sub) => (
+                        <TableRow key={sub.id}>
+                          <TableCell>{sub.email}</TableCell>
+                          <TableCell>
+                            <Badge variant={sub.status === 'active' ? 'default' : 'secondary'}>
+                              {sub.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatDistanceToNow(new Date(sub.subscribed_at), { addSuffix: true })}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

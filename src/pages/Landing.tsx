@@ -586,12 +586,12 @@ const Landing = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
+              <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">Contact</button></li>
+                <li><button onClick={() => navigate("/careers")} className="hover:text-foreground transition-colors">Careers</button></li>
+                <li><button onClick={() => navigate("/affiliate")} className="hover:text-foreground transition-colors">Affiliate Program</button></li>
                 <li><button onClick={() => navigate("/case-studies")} className="hover:text-foreground transition-colors">Case Studies</button></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">API Docs</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>

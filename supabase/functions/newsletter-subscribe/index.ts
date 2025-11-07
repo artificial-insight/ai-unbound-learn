@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.80.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +28,20 @@ const handler = async (req: Request): Promise<Response> => {
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
+    }
+
+    // Store subscription in database
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { error: dbError } = await supabase
+      .from("newsletter_subscriptions")
+      .insert({ email });
+
+    if (dbError) {
+      console.error("Database error:", dbError);
+      // Continue even if DB insert fails - still send welcome email
     }
 
     // Send welcome email via Resend
