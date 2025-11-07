@@ -7,14 +7,30 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { signOut, user } = useAuth();
+  const { toast } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const NavLinks = () => (

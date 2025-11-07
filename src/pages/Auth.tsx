@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,39 +8,71 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Auth = () => {
-  const [role, setRole] = useState<string>("learner");
+  const [role, setRole] = useState<"learner" | "educator" | "institution">("learner");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, signUp, user, userRole } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user && userRole) {
+      // Redirect based on role
+      if (userRole === "learner") {
+        navigate("/dashboard");
+      } else if (userRole === "educator") {
+        navigate("/admin");
+      } else {
+        navigate("/institution");
+      }
+    }
+  }, [user, userRole, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock authentication
-    localStorage.setItem("userRole", role);
-    toast({
-      title: "Welcome back!",
-      description: "Successfully logged in to AI UnboundEd",
-    });
+    setLoading(true);
     
-    if (role === "learner") {
-      navigate("/dashboard");
-    } else if (role === "educator") {
-      navigate("/admin");
-    } else {
-      navigate("/institution");
+    try {
+      await signIn(email, password);
+      toast({
+        title: "Welcome back!",
+        description: "Successfully logged in to AI UnboundEd",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error signing in",
+        description: error.message || "Please check your credentials and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock registration
-    localStorage.setItem("userRole", role);
-    toast({
-      title: "Account created!",
-      description: "Welcome to AI UnboundEd. Let's start learning!",
-    });
-    navigate("/dashboard");
+    setLoading(true);
+    
+    try {
+      await signUp(email, password, fullName, role);
+      toast({
+        title: "Account created!",
+        description: "Welcome to AI UnboundEd. Let's start learning!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error creating account",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,27 +98,27 @@ const Auth = () => {
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="you@example.com" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="you@example.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Login as</Label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="learner">Learner</SelectItem>
-                      <SelectItem value="educator">Educator/Admin</SelectItem>
-                      <SelectItem value="institution">Institution</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" className="w-full">
-                  Sign In
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -95,19 +127,39 @@ const Auth = () => {
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="John Doe" required />
+                  <Input 
+                    id="name" 
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="you@example.com" required />
+                  <Input 
+                    id="signup-email" 
+                    type="email" 
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" type="password" required />
+                  <Input 
+                    id="signup-password" 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={6}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-role">I am a</Label>
-                  <Select value={role} onValueChange={setRole}>
+                  <Select value={role} onValueChange={(value: any) => setRole(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -118,8 +170,8 @@ const Auth = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full">
-                  Create Account
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>
             </TabsContent>

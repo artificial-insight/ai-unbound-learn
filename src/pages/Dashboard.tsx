@@ -6,8 +6,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { Brain, BookOpen, TrendingUp, Clock, Award, Sparkles, Play, Code } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+    }
+  }, [user]);
+
+  const userName = profile?.full_name || user?.email?.split('@')[0] || 'User';
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -16,7 +36,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Welcome back, Alex! 👋
+            Welcome back, {userName}! 👋
           </h1>
           <p className="text-muted-foreground">
             Ready to continue your learning journey? Let's make today count.
