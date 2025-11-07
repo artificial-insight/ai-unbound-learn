@@ -30,8 +30,71 @@ const Dashboard = () => {
         });
       
       loadRecommendations();
+      loadAchievements();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to real-time updates for enrollments
+    const enrollmentChannel = supabase
+      .channel('enrollment-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'course_enrollments',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadRecommendations();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to achievements
+    const achievementChannel = supabase
+      .channel('achievement-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'achievements',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          toast({
+            title: "Achievement Unlocked! 🎉",
+            description: payload.new.title,
+          });
+          loadAchievements();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(enrollmentChannel);
+      supabase.removeChannel(achievementChannel);
+    };
+  }, [user]);
+
+  const [achievements, setAchievements] = useState<any[]>([]);
+
+  const loadAchievements = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('earned_at', { ascending: false })
+      .limit(3);
+    
+    if (data) setAchievements(data);
+  };
 
   const loadRecommendations = async () => {
     try {
@@ -100,10 +163,33 @@ const Dashboard = () => {
             <div className="grid md:grid-cols-3 gap-4 pt-4">
               <StatCard icon={<BookOpen className="w-5 h-5" />} label="Modules Completed" value="12/18" />
               <StatCard icon={<Clock className="w-5 h-5" />} label="Learning Hours" value="45.5" />
-              <StatCard icon={<Award className="w-5 h-5" />} label="Achievements" value="8" />
+              <StatCard icon={<Award className="w-5 h-5" />} label="Achievements" value={achievements.length.toString()} />
             </div>
           </CardContent>
         </Card>
+
+        {/* Recent Achievements */}
+        {achievements.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-primary" />
+                Recent Achievements
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                {achievements.map((achievement) => (
+                  <div key={achievement.id} className="p-4 rounded-lg bg-gradient-card border border-border">
+                    <div className="text-4xl mb-2">{achievement.badge_icon}</div>
+                    <h4 className="font-semibold mb-1">{achievement.title}</h4>
+                    <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Next Recommended & Live Sessions */}
         <div className="grid lg:grid-cols-2 gap-8 mb-8">

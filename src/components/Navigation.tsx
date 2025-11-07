@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LayoutDashboard, BookOpen, Video, BarChart, LogOut, Menu, User } from "lucide-react";
-import { useState } from "react";
+import { GraduationCap, LayoutDashboard, BookOpen, Video, BarChart, LogOut, Menu, User, School } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -9,12 +9,29 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { signOut, user } = useAuth();
   const { toast } = useToast();
+  const [isEducator, setIsEducator] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data && data.role === 'educator') {
+            setIsEducator(true);
+          }
+        });
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -65,6 +82,14 @@ const Navigation = () => {
           Profile
         </Button>
       </Link>
+      {isEducator && (
+        <Link to="/educator" onClick={() => setOpen(false)}>
+          <Button variant="ghost" className="justify-start w-full">
+            <School className="w-4 h-4 mr-2" />
+            Educator
+          </Button>
+        </Link>
+      )}
     </>
   );
 

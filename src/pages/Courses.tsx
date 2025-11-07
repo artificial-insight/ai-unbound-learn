@@ -26,6 +26,31 @@ const Courses = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to real-time enrollment updates
+    const channel = supabase
+      .channel('course-enrollment-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'course_enrollments',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadEnrollments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadCourses = async () => {
     const { data } = await supabase
       .from('courses')
@@ -251,10 +276,16 @@ const CourseCard = ({ courseId, icon, title, description, level, duration, stude
 
       <Button 
         className="w-full" 
-        onClick={() => !enrolled && onEnroll(courseId)}
-        disabled={enrolling || enrolled}
+        onClick={() => {
+          if (!enrolled) {
+            onEnroll(courseId);
+          } else {
+            window.location.href = `/course/${courseId}`;
+          }
+        }}
+        disabled={enrolling}
       >
-        {enrolling ? "Enrolling..." : progress > 0 ? "Continue Learning" : enrolled ? "Enrolled" : "Enroll Now"}
+        {enrolling ? "Enrolling..." : progress > 0 ? "Continue Learning" : enrolled ? "View Course" : "Enroll Now"}
       </Button>
     </CardContent>
   </Card>
