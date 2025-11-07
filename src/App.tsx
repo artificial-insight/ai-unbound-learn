@@ -14,6 +14,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import CourseViewer from "./pages/CourseViewer";
 import EducatorDashboard from "./pages/EducatorDashboard";
+import Notifications from "./pages/Notifications";
+import Forum from "./pages/Forum";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -34,9 +36,11 @@ const App = () => (
             <Route path="/session" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/forum" element={<ProtectedRoute><Forum /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator', 'institution']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/institution" element={<ProtectedRoute allowedRoles={['institution']}><AdminDashboard /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
