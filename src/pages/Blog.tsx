@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Newsletter } from "@/components/Newsletter";
 import { useNavigate } from "react-router-dom";
 import { Search, Calendar, Clock, ArrowRight, TrendingUp, BookOpen, Code, Brain } from "lucide-react";
 
@@ -228,6 +229,25 @@ const Blog = () => {
             </div>
           )}
         </div>
+
+        {/* Newsletter Section */}
+        <section className="py-20 border-t border-border bg-gradient-card">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="font-display font-bold text-3xl mb-4">
+                  Never Miss an Update
+                </h2>
+                <p className="text-muted-foreground">
+                  Subscribe to get the latest tutorials and insights delivered to your inbox.
+                </p>
+              </div>
+              <Card className="p-8">
+                <Newsletter />
+              </Card>
+            </div>
+          </div>
+        </section>
       </div>
     </AppLayout>
   );

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Newsletter } from "@/components/Newsletter";
 import { useNavigate } from "react-router-dom";
 import { 
   Brain, 
@@ -578,28 +579,23 @@ const Landing = () => {
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Courses</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Paths</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Certifications</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Pricing</a></li>
+                <li><button onClick={() => navigate("/courses")} className="hover:text-foreground transition-colors">Courses</button></li>
+                <li><button onClick={() => navigate("/blog")} className="hover:text-foreground transition-colors">Blog</button></li>
+                <li><button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors">Pricing</button></li>
+                <li><button onClick={() => navigate("/partners")} className="hover:text-foreground transition-colors">Integrations</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
+              <h4 className="font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Careers</a></li>
+                <li><button onClick={() => navigate("/case-studies")} className="hover:text-foreground transition-colors">Case Studies</button></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">API Docs</a></li>
                 <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Security</a></li>
-              </ul>
+              <Newsletter />
             </div>
           </div>
           <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">

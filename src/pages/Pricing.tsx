@@ -253,6 +253,90 @@ const Pricing = () => {
             </div>
           </div>
         </section>
+
+        {/* Comparison Table */}
+        <section className="py-20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="font-display font-bold text-3xl lg:text-4xl mb-4">
+                Compare <span className="bg-gradient-hero bg-clip-text text-transparent">vs Competitors</span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                See why thousands choose AI UnboundEd over alternatives
+              </p>
+            </div>
+
+            <Card className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="text-left p-4 font-semibold">Feature</th>
+                    <th className="text-center p-4 font-semibold bg-primary/5">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-primary font-display text-lg">AI UnboundEd</span>
+                        <Badge className="bg-gradient-hero text-white border-0">Best Value</Badge>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-muted-foreground">Competitor A</th>
+                    <th className="text-center p-4 font-semibold text-muted-foreground">Competitor B</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { feature: "AI-Powered Tutoring", us: true, a: false, b: "Limited" },
+                    { feature: "Course Library", us: "1,200+", a: "800+", b: "500+" },
+                    { feature: "Personalized Learning Paths", us: true, a: "Basic", b: false },
+                    { feature: "Real-time Progress Tracking", us: true, a: true, b: true },
+                    { feature: "Interactive Coding Environment", us: true, a: true, b: false },
+                    { feature: "Study Groups & Community", us: true, a: "Limited", b: false },
+                    { feature: "Live Sessions", us: true, a: false, b: true },
+                    { feature: "Mobile App", us: true, a: true, b: true },
+                    { feature: "Offline Access", us: true, a: "Pro only", b: false },
+                    { feature: "Career Support", us: true, a: false, b: "Enterprise only" },
+                    { feature: "Starting Price", us: "$0", a: "$19/mo", b: "$29/mo" },
+                  ].map((row, index) => (
+                    <tr key={index} className="border-b border-border last:border-0">
+                      <td className="p-4 font-medium">{row.feature}</td>
+                      <td className="p-4 text-center bg-primary/5">
+                        {typeof row.us === "boolean" ? (
+                          row.us ? (
+                            <Check className="w-5 h-5 text-success mx-auto" />
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )
+                        ) : (
+                          <span className="font-semibold text-primary">{row.us}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center text-muted-foreground">
+                        {typeof row.a === "boolean" ? (
+                          row.a ? (
+                            <Check className="w-5 h-5 text-success mx-auto" />
+                          ) : (
+                            <span>—</span>
+                          )
+                        ) : (
+                          <span>{row.a}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center text-muted-foreground">
+                        {typeof row.b === "boolean" ? (
+                          row.b ? (
+                            <Check className="w-5 h-5 text-success mx-auto" />
+                          ) : (
+                            <span>—</span>
+                          )
+                        ) : (
+                          <span>{row.b}</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </div>
+        </section>
       </div>
     </AppLayout>
   );

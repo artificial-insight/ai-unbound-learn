@@ -22,6 +22,8 @@ import StudyGroups from "./pages/StudyGroups";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Pricing from "./pages/Pricing";
+import Partners from "./pages/Partners";
+import CaseStudies from "./pages/CaseStudies";
 import NotFound from "./pages/NotFound";
 import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:postId" element={<BlogPost />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/case-studies" element={<CaseStudies />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
             <Route path="/session" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
