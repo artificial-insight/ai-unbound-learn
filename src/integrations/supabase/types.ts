@@ -44,6 +44,149 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_applications: {
+        Row: {
+          approved_at: string | null
+          audience_description: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          referral_code: string | null
+          status: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          audience_description?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          referral_code?: string | null
+          status?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          audience_description?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          referral_code?: string | null
+          status?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      affiliate_earnings: {
+        Row: {
+          affiliate_user_id: string
+          amount: number
+          created_at: string
+          id: string
+          paid_at: string | null
+          referral_id: string
+          status: string
+        }
+        Insert: {
+          affiliate_user_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referral_id: string
+          status?: string
+        }
+        Update: {
+          affiliate_user_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referral_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_earnings_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_referrals: {
+        Row: {
+          affiliate_user_id: string
+          commission_earned: number | null
+          commission_rate: number
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_user_id: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_user_id: string
+          commission_earned?: number | null
+          commission_rate?: number
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_user_id?: string
+          commission_earned?: number | null
+          commission_rate?: number
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_user_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      contact_form_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -367,6 +510,27 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscriptions: {
+        Row: {
+          email: string
+          id: string
+          status: string
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          status?: string
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          status?: string
+          subscribed_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -631,6 +795,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
