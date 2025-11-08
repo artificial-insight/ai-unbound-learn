@@ -57,24 +57,34 @@ serve(async (req) => {
       .eq("id", user.id)
       .single();
 
-    // Fetch user's enrolled courses
+    // Fetch user's enrolled courses with completion data
     const { data: enrollments } = await supabase
       .from("course_enrollments")
       .select(`
         course_id,
         progress_percentage,
+        last_accessed_at,
         courses (
           title,
           level,
           category
         )
       `)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("last_accessed_at", { ascending: false });
 
-    // Fetch all available courses
+    // Fetch user's quiz attempts and scores for performance context
+    const { data: quizAttempts } = await supabase
+      .from("quiz_attempts")
+      .select("quiz_id, score, passed, quizzes(title, course_id)")
+      .eq("user_id", user.id)
+      .order("completed_at", { ascending: false })
+      .limit(10);
+
+    // Fetch all available courses with more details
     const { data: allCourses } = await supabase
       .from("courses")
-      .select("id, title, description, level, category, duration_hours");
+      .select("id, title, description, level, category, duration_hours, instructor_id");
 
     // Get courses user is NOT enrolled in
     const enrolledIds = enrollments?.map((e) => e.course_id) || [];
@@ -82,7 +92,17 @@ serve(async (req) => {
       (course) => !enrolledIds.includes(course.id)
     );
 
-    // Prepare context for AI
+    // Calculate user's performance metrics for better recommendations
+    const avgQuizScore = quizAttempts?.length
+      ? quizAttempts.reduce((sum, a) => sum + a.score, 0) / quizAttempts.length
+      : null;
+    
+    const strengths = quizAttempts
+      ?.filter((a) => a.score >= 80)
+      .map((a: any) => a.quizzes?.title)
+      .slice(0, 3) || [];
+
+    // Prepare enhanced RAG context for AI
     const userContext = {
       learningPreferences: userProfile?.learning_preferences?.topics || [],
       enrolledCourses: enrollments?.map((e: any) => ({
@@ -91,6 +111,11 @@ serve(async (req) => {
         category: e.courses?.category,
         progress: e.progress_percentage,
       })),
+      performanceMetrics: {
+        averageQuizScore: avgQuizScore,
+        strengths,
+        totalCoursesEnrolled: enrollments?.length || 0,
+      },
       availableCourses: availableCourses?.map((c) => ({
         title: c.title,
         description: c.description,
@@ -100,36 +125,35 @@ serve(async (req) => {
       })),
     };
 
-    const systemPrompt = `You are an AI learning advisor for AI UnboundEd School. Analyze the user's learning progress and recommend 3 courses that would best benefit them next.
+    const systemPrompt = `You are an AI learning advisor for AI UnboundEd School. Analyze the user's learning progress, performance metrics, and preferences to recommend 3 courses that would best benefit them next.
 
 Consider:
-1. Their current skill level based on enrolled courses
-2. Logical learning progression (don't jump from beginner to advanced)
-3. Complementary skills that enhance what they're learning
-4. Course categories that align with their interests
+1. User's performance metrics and quiz scores to gauge their actual skill level
+2. Areas where they've shown strength vs areas needing improvement
+3. Logical learning progression based on current enrollments
+4. Complementary skills that enhance what they're already learning
 5. User's stated learning preferences and topics of interest
+6. Course difficulty that matches their demonstrated capabilities
 
-Return your response as a JSON array with this exact structure:
+CRITICAL: Return ONLY a valid JSON array. Do not wrap it in markdown code blocks or any other text.
+
+Response format:
 [
   {
-    "title": "Course Title",
+    "title": "Exact Course Title from available courses",
     "reason": "Brief reason why this course is recommended (max 100 chars)"
   }
 ]`;
 
-    const userPrompt = `User's learning preferences: ${JSON.stringify(
-      userContext.learningPreferences
-    )}
+    const userPrompt = `User Profile:
+- Learning Preferences: ${JSON.stringify(userContext.learningPreferences)}
+- Performance Metrics: ${JSON.stringify(userContext.performanceMetrics)}
 
-User's enrolled courses: ${JSON.stringify(
-      userContext.enrolledCourses
-    )}
+Currently Enrolled Courses: ${JSON.stringify(userContext.enrolledCourses)}
 
-Available courses to recommend from: ${JSON.stringify(
-      userContext.availableCourses
-    )}
+Available Courses to Recommend: ${JSON.stringify(userContext.availableCourses)}
 
-Provide exactly 3 course recommendations with reasons.`;
+Based on this comprehensive context, provide exactly 3 personalized course recommendations that align with the user's performance, interests, and learning trajectory.`;
 
     console.log("Calling Lovable AI for recommendations...");
 
@@ -176,9 +200,13 @@ Provide exactly 3 course recommendations with reasons.`;
     }
 
     const aiData = await aiResponse.json();
-    const recommendations = JSON.parse(
-      aiData.choices[0].message.content
-    );
+    let content = aiData.choices[0].message.content;
+    
+    // Strip markdown code blocks if present (```json ... ```)
+    content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    
+    // Parse the cleaned JSON
+    const recommendations = JSON.parse(content);
 
     console.log("AI recommendations generated successfully");
 
