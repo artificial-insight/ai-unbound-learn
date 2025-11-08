@@ -28,6 +28,8 @@ import Contact from "./pages/Contact";
 import Careers from "./pages/Careers";
 import Affiliate from "./pages/Affiliate";
 import AffiliateDashboard from "./pages/AffiliateDashboard";
+import LearningPaths from "./pages/LearningPaths";
+import SkillGaps from "./pages/SkillGaps";
 import NotFound from "./pages/NotFound";
 import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -63,6 +65,8 @@ const App = () => (
             <Route path="/forum/new" element={<ProtectedRoute><ForumNewTopic /></ProtectedRoute>} />
             <Route path="/forum/:topicId" element={<ProtectedRoute><ForumTopic /></ProtectedRoute>} />
             <Route path="/study-groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
+            <Route path="/learning-paths" element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
+            <Route path="/skill-gaps" element={<ProtectedRoute><SkillGaps /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
             <Route path="/certificate/:enrollmentId" element={<ProtectedRoute><CertificateViewer /></ProtectedRoute>} />
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />

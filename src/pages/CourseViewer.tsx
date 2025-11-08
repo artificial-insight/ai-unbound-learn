@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import AITutor from "@/components/AITutor";
+import { SimilarCourses } from "@/components/SimilarCourses";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -358,6 +359,9 @@ const CourseViewer = () => {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Similar Courses */}
+            <SimilarCourses courseId={courseId!} />
 
             {/* AI Tutor */}
             <AITutor courseId={courseId} />

@@ -1,7 +1,8 @@
-import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase } from "lucide-react";
+import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase, LogOut, Target, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +22,8 @@ const mainItems = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Forum", url: "/forum", icon: MessageSquare },
   { title: "Study Groups", url: "/study-groups", icon: UsersIcon },
+  { title: "Learning Paths", url: "/learning-paths", icon: Target },
+  { title: "Skill Gap Analysis", url: "/skill-gaps", icon: TrendingUp },
 ];
 
 const publicItems = [
@@ -36,9 +39,28 @@ const bottomItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { userRole } = useAuth();
+  const { userRole, signOut } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + "/");
   const collapsed = state === "collapsed";
@@ -135,6 +157,17 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 w-full text-left"
+                  >
+                    <LogOut className="h-5 w-5 flex-shrink-0" />
+                    {!collapsed && <span>Logout</span>}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
