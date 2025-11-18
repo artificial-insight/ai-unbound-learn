@@ -26,6 +26,11 @@ const mainItems = [
   { title: "Skill Gap Analysis", url: "/skill-gaps", icon: TrendingUp },
 ];
 
+const managementItems = [
+  { title: "Executive Dashboard", url: "/executive", icon: TrendingUp, roles: ['educator', 'institution'] },
+  { title: "L&D Manager", url: "/ld-manager", icon: UsersIcon, roles: ['educator', 'institution'] },
+];
+
 const publicItems = [
   { title: "Contact", url: "/contact", icon: Mail },
   { title: "Careers", url: "/careers", icon: Briefcase },
@@ -93,27 +98,53 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {(userRole === 'educator' || userRole === 'institution') && (
-          <SidebarGroup>
-            <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
-              Admin
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to="/admin"
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
-                      activeClassName="bg-primary/10 text-primary font-semibold"
-                    >
-                      <Shield className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span>Admin Dashboard</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+                Admin
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/admin"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
+                        activeClassName="bg-primary/10 text-primary font-semibold"
+                      >
+                        <Shield className="h-5 w-5 flex-shrink-0" />
+                        {!collapsed && <span>Admin Dashboard</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+                Management
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {managementItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to={item.url}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
+                          activeClassName="bg-primary/10 text-primary font-semibold"
+                        >
+                          <item.icon className="h-5 w-5 flex-shrink-0" />
+                          {!collapsed && <span>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
         )}
 
         <SidebarGroup>
