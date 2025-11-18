@@ -33,6 +33,8 @@ import SkillGaps from "./pages/SkillGaps";
 import NotFound from "./pages/NotFound";
 import CertificateViewer from "./pages/CertificateViewer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import LDManagerDashboard from "./pages/LDManagerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +74,8 @@ const App = () => (
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['educator', 'institution']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/institution" element={<ProtectedRoute allowedRoles={['institution']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/executive" element={<ProtectedRoute><ExecutiveDashboard /></ProtectedRoute>} />
+            <Route path="/ld-manager" element={<ProtectedRoute><LDManagerDashboard /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
