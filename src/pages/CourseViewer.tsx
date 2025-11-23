@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import AITutor from "@/components/AITutor";
 import { SimilarCourses } from "@/components/SimilarCourses";
+import { EnhancedAITeacher } from "@/components/EnhancedAITeacher";
+import { AdaptiveDifficultyIndicator } from "@/components/AdaptiveDifficultyIndicator";
+import { TimeToCompetency } from "@/components/TimeToCompetency";
+import { GamificationEffects } from "@/components/GamificationEffects";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -233,6 +237,17 @@ const CourseViewer = () => {
                 </TabsList>
                 
                 <TabsContent value="content" className="space-y-4">
+                  {/* Enhanced AI Teacher */}
+                  {course && currentModule && (
+                    <EnhancedAITeacher 
+                      courseTitle={course.title}
+                      topicTitle={currentModule.title}
+                    />
+                  )}
+
+                  {/* Gamification Effects */}
+                  <GamificationEffects />
+
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -359,6 +374,23 @@ const CourseViewer = () => {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Time to Competency */}
+            {course && enrollment && (
+              <TimeToCompetency 
+                currentProgress={enrollment.progress_percentage || 0}
+                hoursPerWeek={10}
+                totalHoursNeeded={course.duration_hours || 40}
+                skillName={course.title}
+                targetRole="certified"
+              />
+            )}
+
+            {/* Adaptive Difficulty Indicator */}
+            <AdaptiveDifficultyIndicator 
+              currentDifficulty="just-right"
+              userPerformance={enrollment?.progress_percentage || 0}
+            />
 
             {/* Similar Courses */}
             <SimilarCourses courseId={courseId!} />

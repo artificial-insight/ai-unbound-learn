@@ -25,33 +25,33 @@ const Landing = () => {
   const features = [
     {
       icon: Brain,
-      title: "AI-Powered Learning",
-      description: "Get personalized course recommendations and real-time guidance from our intelligent tutoring system."
+      title: "Agentic AI Teachers",
+      description: "Real-time lessons that adapt to your learning style. Multiple explanation styles: visual, analogy, step-by-step, code examples."
     },
     {
       icon: Target,
-      title: "Skill-Based Paths",
-      description: "Follow curated learning paths designed by experts to master specific skills and technologies."
+      title: "Adaptive Difficulty",
+      description: "AI monitors performance and automatically adjusts difficulty in real-time. Always learning at the perfect challenge level."
     },
     {
-      icon: Users,
-      title: "Collaborative Learning",
-      description: "Join study groups, participate in forums, and learn together with peers worldwide."
+      icon: TrendingUp,
+      title: "50% Faster Learning",
+      description: "Reach job-ready competency in half the time with personalized paths and continuous AI guidance."
     },
     {
       icon: Award,
-      title: "Industry Certifications",
-      description: "Earn recognized certificates upon course completion to showcase your achievements."
+      title: "60% Cost Savings",
+      description: "Reduce corporate training costs dramatically compared to traditional bootcamps and instructor-led programs."
     },
     {
-      icon: Clock,
-      title: "Learn at Your Pace",
-      description: "Access courses anytime, anywhere. Progress tracking keeps you motivated and on track."
+      icon: Users,
+      title: "Enterprise Compliance",
+      description: "SCORM/xAPI integration, audit trails, completion tracking, and automated compliance reporting."
     },
     {
-      icon: Sparkles,
-      title: "Interactive Content",
-      description: "Engage with hands-on exercises, quizzes, and real-world projects to reinforce learning."
+      icon: Rocket,
+      title: "Instant ROI Analytics",
+      description: "Track time-to-competency, skill velocity, and training investment returns in real-time dashboards."
     }
   ];
 
@@ -81,18 +81,18 @@ const Landing = () => {
               <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
               </div>
-              <span className="font-display font-bold text-xl">AI UnboundEd</span>
+              <span className="font-display font-bold text-xl">UnboundEd AI</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Testimonials</a>
-              <button onClick={() => navigate("/pricing")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</button>
-              <button onClick={() => navigate("/blog")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Blog</button>
+              <button onClick={() => navigate("/pricing")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Enterprise</button>
+              <a href="#roi" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">ROI</a>
+              <button onClick={() => navigate("/blog")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Resources</button>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => navigate("/auth")}>Sign In</Button>
               <Button onClick={() => navigate("/auth")} className="bg-gradient-hero hover:opacity-90 transition-opacity shadow-glow">
-                Start Learning
+                Start Free Trial
               </Button>
             </div>
           </div>
@@ -110,19 +110,23 @@ const Landing = () => {
             <div className="space-y-8 animate-fade-in">
               <Badge className="bg-gradient-hero text-white border-0 shadow-glow">
                 <Sparkles className="w-3 h-3 mr-1" />
-                AI-Powered Education
+                Meet Your AI Teacher
               </Badge>
               <h1 className="font-display font-bold text-5xl lg:text-7xl leading-tight">
-                Master Skills with{" "}
+                Learn Faster, Smarter,{" "}
                 <span className="bg-gradient-hero bg-clip-text text-transparent">
-                  AI-Powered
-                </span>{" "}
-                Learning
+                  Personalized to You
+                </span>
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Experience personalized education with intelligent course recommendations, 
-                real-time AI tutoring, and interactive learning paths designed for your success.
+                Organizations save 60% on training costs while learners upskill 50% faster with AI teachers that adapt to how YOU learn.
               </p>
+              <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Pfizer_logo.svg/512px-Pfizer_logo.svg.png" alt="Pfizer" className="h-6 opacity-70" />
+                  <span className="text-sm text-muted-foreground">Trusted by enterprise leaders</span>
+                </div>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg" 
