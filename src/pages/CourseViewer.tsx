@@ -7,6 +7,7 @@ import { EnhancedAITeacher } from "@/components/EnhancedAITeacher";
 import { AdaptiveDifficultyIndicator } from "@/components/AdaptiveDifficultyIndicator";
 import { TimeToCompetency } from "@/components/TimeToCompetency";
 import { GamificationEffects } from "@/components/GamificationEffects";
+import { InteractiveAssessment } from "@/components/InteractiveAssessment";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -282,32 +283,12 @@ const CourseViewer = () => {
                 </TabsContent>
 
                 <TabsContent value="quiz">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Knowledge Check</CardTitle>
-                      <CardDescription>Test your understanding of this module</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <Label className="text-base">What is the main concept covered in this module?</Label>
-                        <RadioGroup value={quizAnswers['q1']} onValueChange={(val) => setQuizAnswers({...quizAnswers, q1: val})}>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="a" id="q1a" />
-                            <Label htmlFor="q1a" className="font-normal">Option A</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="b" id="q1b" />
-                            <Label htmlFor="q1b" className="font-normal">Option B</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="c" id="q1c" />
-                            <Label htmlFor="q1c" className="font-normal">Option C</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                      <Button>Submit Quiz</Button>
-                    </CardContent>
-                  </Card>
+                  {course && currentModule && (
+                    <InteractiveAssessment 
+                      courseTitle={course.title}
+                      moduleTitle={currentModule.title}
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="exercise">
