@@ -1,4 +1,4 @@
-import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase, LogOut, Target, TrendingUp } from "lucide-react";
+import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase, LogOut, Target, TrendingUp, Trophy } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +22,7 @@ const mainItems = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Forum", url: "/forum", icon: MessageSquare },
   { title: "Study Groups", url: "/study-groups", icon: UsersIcon },
+  { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Learning Paths", url: "/learning-paths", icon: Target },
   { title: "Skill Gap Analysis", url: "/skill-gaps", icon: TrendingUp },
 ];

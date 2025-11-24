@@ -8,6 +8,8 @@ import { AdaptiveDifficultyIndicator } from "@/components/AdaptiveDifficultyIndi
 import { TimeToCompetency } from "@/components/TimeToCompetency";
 import { GamificationEffects } from "@/components/GamificationEffects";
 import { InteractiveAssessment } from "@/components/InteractiveAssessment";
+import { AIChat } from "@/components/AIChat";
+import { Leaderboard } from "@/components/Leaderboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -376,10 +378,22 @@ const CourseViewer = () => {
             {/* Similar Courses */}
             <SimilarCourses courseId={courseId!} />
 
-            {/* AI Tutor */}
+            {/* Leaderboard */}
+            <Leaderboard />
+
+            {/* AI Tutor (Legacy) */}
             <AITutor courseId={courseId} />
           </div>
         </div>
+
+        {/* Floating AI Chat */}
+        {course && currentModule && (
+          <AIChat 
+            courseTitle={course.title}
+            topicTitle={currentModule.title}
+            variant="floating"
+          />
+        )}
       </div>
     </AppLayout>
   );

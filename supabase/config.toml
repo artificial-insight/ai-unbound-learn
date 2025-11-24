@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.ai-tutor]
 verify_jwt = true
 
+[functions.ai-chat]
+verify_jwt = true
+
 [functions.newsletter-subscribe]
 verify_jwt = false
 
