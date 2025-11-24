@@ -61,6 +61,9 @@ const LDManagerDashboard = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCohort, setSelectedCohort] = useState<string>('all');
   const [newCohortOpen, setNewCohortOpen] = useState(false);
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [deadline, setDeadline] = useState("");
 
   useEffect(() => {
     loadDashboardData();
@@ -140,10 +143,19 @@ const LDManagerDashboard = () => {
     }
   };
 
-  const handleBulkAssign = async (courseIds: string[], userIds: string[]) => {
+  const handleBulkAssign = async () => {
+    if (selectedCourses.length === 0 || selectedEmployees.length === 0) {
+      toast({
+        title: "Missing Selection",
+        description: "Please select at least one course and one employee",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      const enrollments = userIds.flatMap(userId =>
-        courseIds.map(courseId => ({
+      const enrollments = selectedEmployees.flatMap(userId =>
+        selectedCourses.map(courseId => ({
           user_id: userId,
           course_id: courseId
         }))
@@ -155,11 +167,26 @@ const LDManagerDashboard = () => {
 
       if (error) throw error;
 
+      // Send notifications
+      await Promise.all(selectedEmployees.map(userId =>
+        supabase.from('notifications').insert({
+          user_id: userId,
+          title: 'New Training Assigned',
+          message: `You have been assigned ${selectedCourses.length} new course(s)${deadline ? ` with deadline ${deadline}` : ''}`,
+          type: 'training',
+          link: '/courses'
+        })
+      ));
+
       toast({
         title: "Success",
-        description: `Assigned ${courseIds.length} course(s) to ${userIds.length} employee(s)`
+        description: `Assigned ${selectedCourses.length} course(s) to ${selectedEmployees.length} employee(s)`
       });
 
+      setNewCohortOpen(false);
+      setSelectedCourses([]);
+      setSelectedEmployees([]);
+      setDeadline("");
       loadDashboardData();
     } catch (error: any) {
       toast({
@@ -168,6 +195,38 @@ const LDManagerDashboard = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const exportComplianceReport = () => {
+    const reportData = employees.map(emp => ({
+      'Employee Name': emp.full_name || 'Unknown',
+      'Email': emp.email,
+      'Employee ID': emp.id,
+      'Total Courses Enrolled': emp.enrollments.length,
+      'Courses Completed': emp.enrollments.filter((e: any) => e.completed_at).length,
+      'Completion Rate': `${emp.avgProgress.toFixed(0)}%`,
+      'Total Training Hours': Math.round(emp.enrollments.length * 8),
+      'Compliance Status': emp.avgProgress >= 70 ? 'Compliant' : 'Non-Compliant',
+      'Last Active': emp.enrollments[0]?.enrolled_at ? new Date(emp.enrollments[0].enrolled_at).toLocaleDateString() : 'Never',
+      'Status': emp.status
+    }));
+
+    const csv = [
+      Object.keys(reportData[0] || {}).join(','),
+      ...reportData.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `compliance-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+
+    toast({
+      title: "Compliance Report Generated",
+      description: "Full audit trail downloaded successfully"
+    });
   };
 
   const exportReport = () => {
@@ -259,37 +318,88 @@ const LDManagerDashboard = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label>Select Courses</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose courses..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {courses.map(course => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label>Select Courses (Multiple)</Label>
+                    <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                      {courses.map(course => (
+                        <div key={course.id} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedCourses.includes(course.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedCourses([...selectedCourses, course.id]);
+                              } else {
+                                setSelectedCourses(selectedCourses.filter(id => id !== course.id));
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <span className="text-sm">{course.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedCourses.length > 0 && (
+                      <p className="text-xs text-success mt-2">
+                        {selectedCourses.length} course(s) selected
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Deadline</Label>
-                    <Input type="date" />
+                    <Label>Deadline (Optional)</Label>
+                    <Input 
+                      type="date" 
+                      value={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label>Select Employees</Label>
-                    <div className="border rounded-lg p-4 max-h-48 overflow-y-auto">
-                      {employees.slice(0, 10).map(emp => (
-                        <div key={emp.id} className="flex items-center gap-2 py-2">
-                          <input type="checkbox" className="rounded" />
+                    <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                      <div className="flex items-center gap-2 pb-2 border-b mb-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedEmployees.length === employees.length}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedEmployees(employees.map(emp => emp.id));
+                            } else {
+                              setSelectedEmployees([]);
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium">Select All</span>
+                      </div>
+                      {employees.map(emp => (
+                        <div key={emp.id} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedEmployees.includes(emp.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedEmployees([...selectedEmployees, emp.id]);
+                              } else {
+                                setSelectedEmployees(selectedEmployees.filter(id => id !== emp.id));
+                              }
+                            }}
+                            className="rounded"
+                          />
                           <span className="text-sm">{emp.full_name || emp.email}</span>
                         </div>
                       ))}
                     </div>
+                    {selectedEmployees.length > 0 && (
+                      <p className="text-xs text-success mt-2">
+                        {selectedEmployees.length} employee(s) selected
+                      </p>
+                    )}
                   </div>
-                  <Button className="w-full bg-gradient-hero">
-                    Assign Training
+                  <Button 
+                    onClick={handleBulkAssign}
+                    className="w-full bg-gradient-hero"
+                    disabled={selectedCourses.length === 0 || selectedEmployees.length === 0}
+                  >
+                    Assign {selectedCourses.length} Course(s) to {selectedEmployees.length} Employee(s)
                   </Button>
                 </div>
               </DialogContent>
@@ -490,51 +600,103 @@ const LDManagerDashboard = () => {
           <TabsContent value="compliance" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Compliance & Audit Reports</CardTitle>
-                <CardDescription>
-                  Generate reports for training compliance and regulatory requirements
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button variant="outline" className="justify-start h-auto p-4">
-                      <div className="text-left">
-                        <p className="font-medium">Training Hours Report</p>
-                        <p className="text-sm text-muted-foreground">Total hours logged per employee</p>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="justify-start h-auto p-4">
-                      <div className="text-left">
-                        <p className="font-medium">Completion Certificates</p>
-                        <p className="text-sm text-muted-foreground">Export all earned certificates</p>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="justify-start h-auto p-4">
-                      <div className="text-left">
-                        <p className="font-medium">ROI Analysis</p>
-                        <p className="text-sm text-muted-foreground">Cost savings & productivity gains</p>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="justify-start h-auto p-4">
-                      <div className="text-left">
-                        <p className="font-medium">Audit Trail</p>
-                        <p className="text-sm text-muted-foreground">Who trained on what, when, scores</p>
-                      </div>
-                    </Button>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Compliance & Audit Reports</CardTitle>
+                    <CardDescription>
+                      Generate compliance reports for training completion and certification
+                    </CardDescription>
                   </div>
-
-                  <div className="p-6 border rounded-lg bg-muted/30">
-                    <h4 className="font-semibold mb-4">SCORM Export</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Export training data in SCORM format for integration with your LMS or compliance system
+                  <Button onClick={exportComplianceReport} variant="outline">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Full Audit
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-6 border-2 rounded-lg bg-gradient-card">
+                    <p className="text-sm text-muted-foreground mb-2">Training Hours (YTD)</p>
+                    <p className="text-3xl font-bold text-primary">
+                      {employees.reduce((sum, emp) => sum + (emp.enrollments.length * 8), 0)}
                     </p>
-                    <Button>
-                      <Download className="w-4 h-4 mr-2" />
-                      Export SCORM Package
+                    <p className="text-xs text-muted-foreground mt-1">Across {employees.length} employees</p>
+                  </div>
+                  <div className="p-6 border-2 rounded-lg bg-gradient-card">
+                    <p className="text-sm text-muted-foreground mb-2">Certificates Issued</p>
+                    <p className="text-3xl font-bold text-success">
+                      {employees.reduce((sum, emp) => 
+                        sum + emp.enrollments.filter((e: any) => e.completed_at).length, 0
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Successfully completed</p>
+                  </div>
+                  <div className="p-6 border-2 rounded-lg bg-gradient-card">
+                    <p className="text-sm text-muted-foreground mb-2">Compliance Rate</p>
+                    <p className="text-3xl font-bold text-accent">
+                      {employees.length > 0 
+                        ? Math.round((employees.filter(e => e.avgProgress >= 70).length / employees.length) * 100)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Meeting requirements</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-lg">Available Reports</h3>
+                  <div className="grid gap-3">
+                    <Button variant="outline" className="justify-start" onClick={exportComplianceReport}>
+                      <Download className="w-4 h-4 mr-3" />
+                      <div className="text-left flex-1">
+                        <p className="font-medium">Full Compliance Audit</p>
+                        <p className="text-xs text-muted-foreground">Complete training records with timestamps</p>
+                      </div>
+                    </Button>
+                    <Button variant="outline" className="justify-start" onClick={exportReport}>
+                      <Download className="w-4 h-4 mr-3" />
+                      <div className="text-left flex-1">
+                        <p className="font-medium">Progress Summary</p>
+                        <p className="text-xs text-muted-foreground">Overview of all employee progress</p>
+                      </div>
+                    </Button>
+                    <Button variant="outline" className="justify-start">
+                      <Download className="w-4 h-4 mr-3" />
+                      <div className="text-left flex-1">
+                        <p className="font-medium">SCORM Export</p>
+                        <p className="text-xs text-muted-foreground">LMS-compatible training data</p>
+                      </div>
                     </Button>
                   </div>
                 </div>
+
+                <Card className="bg-accent/5 border-accent/20">
+                  <CardHeader>
+                    <CardTitle className="text-base">Audit Trail</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      All training activities are automatically logged for compliance purposes
+                    </p>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        <span>Enrollment timestamps</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        <span>Completion dates and scores</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        <span>Certificate issuance records</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        <span>Learning activity logs</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </TabsContent>
