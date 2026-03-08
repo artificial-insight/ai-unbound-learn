@@ -1,4 +1,4 @@
-import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase, LogOut, Target, TrendingUp, Trophy } from "lucide-react";
+import { Home, BookOpen, Video, BarChart3, MessageSquare, Bell, User, Settings, Shield, Users as UsersIcon, DollarSign, Mail, Briefcase, LogOut, Target, TrendingUp, Trophy, Mic } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
