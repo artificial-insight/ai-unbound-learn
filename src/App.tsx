@@ -36,6 +36,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import LDManagerDashboard from "./pages/LDManagerDashboard";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import VoiceLearning from "./pages/VoiceLearning";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/forum/:topicId" element={<ProtectedRoute><ForumTopic /></ProtectedRoute>} />
             <Route path="/study-groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+            <Route path="/voice-learning" element={<ProtectedRoute><VoiceLearning /></ProtectedRoute>} />
             <Route path="/learning-paths" element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
             <Route path="/skill-gaps" element={<ProtectedRoute><SkillGaps /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
