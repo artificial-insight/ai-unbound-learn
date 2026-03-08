@@ -25,6 +25,7 @@ const mainItems = [
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Learning Paths", url: "/learning-paths", icon: Target },
   { title: "Skill Gap Analysis", url: "/skill-gaps", icon: TrendingUp },
+  { title: "Voice Learning", url: "/voice-learning", icon: Mic },
 ];
 
 const managementItems = [
