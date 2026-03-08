@@ -36,6 +36,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import LDManagerDashboard from "./pages/LDManagerDashboard";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import VoiceLearning from "./pages/VoiceLearning";
 
 const queryClient = new QueryClient();
 
