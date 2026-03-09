@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
 import { diagnoseTDI, loadTDIRules, logTDIEvent, type TDILoadedRule, type TDIIntervention } from "@/lib/tdi";
-import { CheckCircle2, XCircle, Code, MessageSquare, CheckSquare } from "lucide-react";
-import { motion } from "framer-motion";
+import { CheckCircle2, XCircle, Lightbulb, Code, MessageSquare, CheckSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type QuestionType = 'mcq' | 'coding' | 'explanation';
 
