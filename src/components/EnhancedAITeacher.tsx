@@ -309,9 +309,9 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId,
 
             {isTyping && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-hero flex items-center justify-center">
-                  <Brain className="w-4 h-4 text-white" />
-                </div>
+                 <div className="w-8 h-8 rounded-full bg-gradient-hero flex items-center justify-center">
+                   <Brain className="w-4 h-4 text-primary-foreground" />
+                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.2s' }} />
