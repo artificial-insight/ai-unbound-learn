@@ -26,9 +26,11 @@ interface Question {
 interface InteractiveAssessmentProps {
   courseTitle: string;
   moduleTitle: string;
+  courseId?: string;
+  moduleId?: string;
 }
 
-export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveAssessmentProps) => {
+export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, moduleId }: InteractiveAssessmentProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
