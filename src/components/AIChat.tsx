@@ -326,6 +326,7 @@ export const AIChat = ({ courseTitle, topicTitle, courseId = null, variant = "fl
             void logTDIEvent({
               action: "skipped",
               intervention: activeIntervention,
+              courseId,
               learnerInput: pendingInput ?? null,
               context: "ai_chat",
             }).catch(() => {});
