@@ -95,7 +95,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
 
   const question = questions[currentQuestion];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const correct = question.correctAnswer
       ? userAnswer === question.correctAnswer
       : userAnswer.length > 20; // For explanation questions, just check length
@@ -108,19 +108,30 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
       return;
     }
 
-    const intervention = diagnoseTDI({
-      mode: "assessment",
-      courseTitle,
-      topicTitle: moduleTitle,
-      question: question.question,
-      learnerText: userAnswer,
-      correctAnswer: question.correctAnswer,
-      metadata: { type: question.type },
-    });
+    const intervention = diagnoseTDI(
+      {
+        mode: "assessment",
+        courseTitle,
+        topicTitle: moduleTitle,
+        question: question.question,
+        learnerText: userAnswer,
+        correctAnswer: question.correctAnswer,
+        metadata: { type: question.type },
+      },
+      tdiRules,
+    );
 
     if (intervention) {
       setActiveIntervention(intervention);
       setPendingInterventionForQuestionId(question.id);
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        courseId: courseId ?? null,
+        moduleId: moduleId ?? null,
+        learnerInput: userAnswer,
+        context: "interactive_assessment",
+      }).catch(() => {});
       return;
     }
 
