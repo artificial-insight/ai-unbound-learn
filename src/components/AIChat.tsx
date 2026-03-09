@@ -163,10 +163,11 @@ export const AIChat = ({ courseTitle, topicTitle, courseId = null, variant = "fl
       setActiveIntervention(intervention);
       setPendingMessages(updatedMessages);
       setPendingInput(userMessage.content);
-      
+
       void logTDIEvent({
         action: "triggered",
         intervention,
+        courseId,
         learnerInput: userMessage.content,
         context: "ai_chat",
       }).catch(() => {});
