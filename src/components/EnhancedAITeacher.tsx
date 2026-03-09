@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
-import { diagnoseTDI, formatTDITranscript, type TDIIntervention } from "@/lib/tdi";
+import {
+  diagnoseTDI,
+  formatTDITranscript,
+  loadTDIRules,
+  logTDIEvent,
+  type TDILoadedRule,
+  type TDIIntervention,
+} from "@/lib/tdi";
 import {
   Brain,
   Lightbulb,
@@ -18,19 +25,21 @@ import {
 } from "lucide-react";
 
 interface Message {
-  role: 'teacher' | 'student';
+  role: "teacher" | "student";
   content: string;
   timestamp: Date;
-  explanationType?: 'simple' | 'visual' | 'code' | 'analogy' | 'socratic';
+  explanationType?: "simple" | "visual" | "code" | "analogy" | "socratic";
 }
 
 interface EnhancedAITeacherProps {
   courseTitle: string;
   topicTitle: string;
+  courseId?: string;
+  moduleId?: string;
   onQuestionSubmit?: (question: string) => void;
 }
 
-export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }: EnhancedAITeacherProps) => {
+export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId, onQuestionSubmit }: EnhancedAITeacherProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'teacher',
