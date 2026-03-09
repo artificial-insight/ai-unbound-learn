@@ -230,8 +230,8 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Question Input */}
-        {question.type === 'mcq' && question.options && (
-          <RadioGroup value={userAnswer} onValueChange={setUserAnswer} disabled={showFeedback}>
+          {question.type === 'mcq' && question.options && (
+          <RadioGroup value={userAnswer} onValueChange={setUserAnswer} disabled={showFeedback || isInterrupted}>
             <div className="space-y-3">
               {question.options.map((option, idx) => (
                 <div 
