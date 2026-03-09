@@ -215,7 +215,19 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
       <TeachingDecisionIntervention
         open={!!activeIntervention}
         intervention={activeIntervention}
-        onAcknowledge={() => {
+        onAcknowledge={(learnerResponse) => {
+          if (activeIntervention) {
+            void logTDIEvent({
+              action: "acknowledged",
+              intervention: activeIntervention,
+              courseId: courseId ?? null,
+              moduleId: moduleId ?? null,
+              learnerInput: userAnswer,
+              learnerResponse: learnerResponse ?? null,
+              context: "interactive_assessment",
+            }).catch(() => {});
+          }
+
           // Only apply if we're still on the same question
           if (pendingInterventionForQuestionId === question.id) {
             setShowFeedback(true);
@@ -224,6 +236,17 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
           setPendingInterventionForQuestionId(null);
         }}
         onSkip={() => {
+          if (activeIntervention) {
+            void logTDIEvent({
+              action: "skipped",
+              intervention: activeIntervention,
+              courseId: courseId ?? null,
+              moduleId: moduleId ?? null,
+              learnerInput: userAnswer,
+              context: "interactive_assessment",
+            }).catch(() => {});
+          }
+
           if (pendingInterventionForQuestionId === question.id) {
             setShowFeedback(true);
           }
