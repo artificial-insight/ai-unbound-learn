@@ -41,7 +41,8 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
   ]);
   const [question, setQuestion] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingQuestionForIntervention, setPendingQuestionForIntervention] = useState<string | null>(null);
   const explanationStyles = [
     {
       id: 'simple',
