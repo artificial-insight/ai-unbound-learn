@@ -36,19 +36,24 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingMessages, setPendingMessages] = useState<Message[] | null>(null);
+  const [pendingInput, setPendingInput] = useState<string | null>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  useEffect(() => {
+    loadTDIRules({ mode: "chat" })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, []);
 
-    const userMessage: Message = { role: "user", content: input };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInput("");
+  const startStream = async (baseMessages: Message[]) => {
     setIsLoading(true);
-
+    
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
       
@@ -59,7 +64,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: baseMessages,
           courseTitle,
           topicTitle,
         }),
