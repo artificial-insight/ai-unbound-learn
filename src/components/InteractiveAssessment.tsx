@@ -365,7 +365,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
           {!showFeedback ? (
             <Button 
               onClick={handleSubmit} 
-              disabled={!userAnswer}
+              disabled={!userAnswer || isInterrupted}
               className="flex-1 bg-gradient-hero"
             >
               Submit Answer
