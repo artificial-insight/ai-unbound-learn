@@ -313,6 +313,19 @@ const Profile = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Learning Interventions
+              </CardTitle>
+              <CardDescription>Your Teaching Decision Intervention (TDI) history</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TDIHistoryPanel />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AppLayout>
