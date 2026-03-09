@@ -77,7 +77,7 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
       label: 'Socratic',
       icon: MessageSquare,
       description: 'Guide me with questions',
-      color: 'text-purple-500'
+      color: 'text-foreground'
     }
   ];
 
