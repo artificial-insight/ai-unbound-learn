@@ -36,10 +36,9 @@ export const TeachingDecisionIntervention = ({
   const [freeText, setFreeText] = useState<string>("");
 
   // Reset input when a new intervention appears
-  useMemo(() => {
+  useEffect(() => {
     setChoice("");
     setFreeText("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intervention?.id]);
 
   const learnerResponse = hasChoices ? choice : freeText.trim();

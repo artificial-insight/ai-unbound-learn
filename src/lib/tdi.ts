@@ -1,5 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
-
 export type TDIInterruptType =
   | "clarify_definitions"
   | "quick_check"
