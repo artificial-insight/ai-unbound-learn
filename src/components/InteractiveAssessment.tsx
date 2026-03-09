@@ -86,16 +86,35 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   const question = questions[currentQuestion];
 
   const handleSubmit = () => {
-    const correct = question.correctAnswer 
-      ? userAnswer === question.correctAnswer 
+    const correct = question.correctAnswer
+      ? userAnswer === question.correctAnswer
       : userAnswer.length > 20; // For explanation questions, just check length
 
     setIsCorrect(correct);
-    setShowFeedback(true);
-    
+
     if (correct) {
+      setShowFeedback(true);
       setScore(score + 1);
+      return;
     }
+
+    const intervention = diagnoseTDI({
+      mode: "assessment",
+      courseTitle,
+      topicTitle: moduleTitle,
+      question: question.question,
+      learnerText: userAnswer,
+      correctAnswer: question.correctAnswer,
+      metadata: { type: question.type },
+    });
+
+    if (intervention) {
+      setActiveIntervention(intervention);
+      setPendingInterventionForQuestionId(question.id);
+      return;
+    }
+
+    setShowFeedback(true);
   };
 
   const handleNext = () => {
