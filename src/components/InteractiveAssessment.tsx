@@ -40,8 +40,14 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
   const [completed, setCompleted] = useState(false);
   const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
   const [pendingInterventionForQuestionId, setPendingInterventionForQuestionId] = useState<string | null>(null);
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
 
-  const isInterrupted = !!activeIntervention;
+  useEffect(() => {
+    loadTDIRules({ mode: "assessment", courseId, moduleId })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, [courseId, moduleId]);
+
   const questions: Question[] = [
     {
       id: '1',
