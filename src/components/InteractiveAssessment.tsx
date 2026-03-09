@@ -262,7 +262,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   // Your code here
 }"
               className="font-mono text-sm min-h-[200px]"
-              disabled={showFeedback}
+              disabled={showFeedback || isInterrupted}
             />
           </div>
         )}
