@@ -37,6 +37,7 @@ import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import LDManagerDashboard from "./pages/LDManagerDashboard";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import VoiceLearning from "./pages/VoiceLearning";
+import TDIPage from "./pages/TDI";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/voice-learning" element={<ProtectedRoute><VoiceLearning /></ProtectedRoute>} />
             <Route path="/learning-paths" element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
             <Route path="/skill-gaps" element={<ProtectedRoute><SkillGaps /></ProtectedRoute>} />
+            <Route path="/tdi" element={<ProtectedRoute><TDIPage /></ProtectedRoute>} />
             <Route path="/course/:courseId" element={<ProtectedRoute><CourseViewer /></ProtectedRoute>} />
             <Route path="/certificate/:enrollmentId" element={<ProtectedRoute><CertificateViewer /></ProtectedRoute>} />
             <Route path="/educator" element={<ProtectedRoute allowedRoles={['educator']}><EducatorDashboard /></ProtectedRoute>} />

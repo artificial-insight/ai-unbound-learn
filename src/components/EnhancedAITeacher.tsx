@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
-import { diagnoseTDI, formatTDITranscript, type TDIIntervention } from "@/lib/tdi";
+import {
+  diagnoseTDI,
+  formatTDITranscript,
+  loadTDIRules,
+  logTDIEvent,
+  type TDILoadedRule,
+  type TDIIntervention,
+} from "@/lib/tdi";
 import {
   Brain,
   Lightbulb,
@@ -18,19 +25,21 @@ import {
 } from "lucide-react";
 
 interface Message {
-  role: 'teacher' | 'student';
+  role: "teacher" | "student";
   content: string;
   timestamp: Date;
-  explanationType?: 'simple' | 'visual' | 'code' | 'analogy' | 'socratic';
+  explanationType?: "simple" | "visual" | "code" | "analogy" | "socratic";
 }
 
 interface EnhancedAITeacherProps {
   courseTitle: string;
   topicTitle: string;
+  courseId?: string;
+  moduleId?: string;
   onQuestionSubmit?: (question: string) => void;
 }
 
-export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }: EnhancedAITeacherProps) => {
+export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId, onQuestionSubmit }: EnhancedAITeacherProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'teacher',
@@ -39,10 +48,18 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
       explanationType: 'simple'
     }
   ]);
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
   const [pendingQuestionForIntervention, setPendingQuestionForIntervention] = useState<string | null>(null);
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
+
+  useEffect(() => {
+    loadTDIRules({ mode: "chat", courseId, moduleId })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, [courseId, moduleId]);
+
   const explanationStyles = [
     {
       id: 'simple',
@@ -161,16 +178,27 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
     setQuestion("");
 
     // TDI: deterministic, auditable intervention before we answer
-    const intervention = diagnoseTDI({
-      mode: "chat",
-      courseTitle,
-      topicTitle,
-      learnerText: asked,
-    });
+    const intervention = diagnoseTDI(
+      {
+        mode: "chat",
+        courseTitle,
+        topicTitle,
+        learnerText: asked,
+      },
+      tdiRules,
+    );
 
     if (intervention) {
       setPendingQuestionForIntervention(asked);
       setActiveIntervention(intervention);
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        courseId: courseId ?? null,
+        moduleId: moduleId ?? null,
+        learnerInput: asked,
+        context: "enhanced_ai_teacher",
+      }).catch(() => {});
       return;
     }
 
@@ -191,6 +219,16 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
         explanationType: "socratic",
       },
     ]);
+
+    void logTDIEvent({
+      action: "acknowledged",
+      intervention: activeIntervention,
+      courseId: courseId ?? null,
+      moduleId: moduleId ?? null,
+      learnerInput: asked ?? null,
+      learnerResponse: learnerResponse ?? null,
+      context: "enhanced_ai_teacher",
+    }).catch(() => {});
 
     setActiveIntervention(null);
     setPendingQuestionForIntervention(null);
@@ -271,9 +309,9 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
 
             {isTyping && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-hero flex items-center justify-center">
-                  <Brain className="w-4 h-4 text-white" />
-                </div>
+                 <div className="w-8 h-8 rounded-full bg-gradient-hero flex items-center justify-center">
+                   <Brain className="w-4 h-4 text-primary-foreground" />
+                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.2s' }} />

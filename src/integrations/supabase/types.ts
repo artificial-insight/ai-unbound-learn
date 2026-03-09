@@ -737,6 +737,110 @@ export type Database = {
           },
         ]
       }
+      tdi_events: {
+        Row: {
+          action: string
+          context: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          intervention_data: Json
+          learner_input: string | null
+          learner_response: string | null
+          module_id: string | null
+          rule_id: string | null
+          rule_key: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          context?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          intervention_data: Json
+          learner_input?: string | null
+          learner_response?: string | null
+          module_id?: string | null
+          rule_id?: string | null
+          rule_key: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          context?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          intervention_data?: Json
+          learner_input?: string | null
+          learner_response?: string | null
+          module_id?: string | null
+          rule_id?: string | null
+          rule_key?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tdi_events_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "tdi_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tdi_rules: {
+        Row: {
+          active: boolean
+          conditions: Json
+          course_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          intervention: Json
+          module_id: string | null
+          name: string
+          priority: number
+          rule_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          conditions: Json
+          course_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          intervention: Json
+          module_id?: string | null
+          name: string
+          priority?: number
+          rule_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          conditions?: Json
+          course_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          intervention?: Json
+          module_id?: string | null
+          name?: string
+          priority?: number
+          rule_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_learning_paths: {
         Row: {
           id: string

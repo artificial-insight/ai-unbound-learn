@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
-import { diagnoseTDI, type TDIIntervention } from "@/lib/tdi";
+import { diagnoseTDI, loadTDIRules, logTDIEvent, type TDILoadedRule, type TDIIntervention } from "@/lib/tdi";
 import { CheckCircle2, XCircle, Lightbulb, Code, MessageSquare, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -26,9 +26,11 @@ interface Question {
 interface InteractiveAssessmentProps {
   courseTitle: string;
   moduleTitle: string;
+  courseId?: string;
+  moduleId?: string;
 }
 
-export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveAssessmentProps) => {
+export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, moduleId }: InteractiveAssessmentProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
@@ -38,8 +40,16 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   const [completed, setCompleted] = useState(false);
   const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
   const [pendingInterventionForQuestionId, setPendingInterventionForQuestionId] = useState<string | null>(null);
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
+
+  useEffect(() => {
+    loadTDIRules({ mode: "assessment", courseId, moduleId })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, [courseId, moduleId]);
 
   const isInterrupted = !!activeIntervention;
+
   const questions: Question[] = [
     {
       id: '1',
@@ -85,7 +95,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
 
   const question = questions[currentQuestion];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const correct = question.correctAnswer
       ? userAnswer === question.correctAnswer
       : userAnswer.length > 20; // For explanation questions, just check length
@@ -98,19 +108,30 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       return;
     }
 
-    const intervention = diagnoseTDI({
-      mode: "assessment",
-      courseTitle,
-      topicTitle: moduleTitle,
-      question: question.question,
-      learnerText: userAnswer,
-      correctAnswer: question.correctAnswer,
-      metadata: { type: question.type },
-    });
+    const intervention = diagnoseTDI(
+      {
+        mode: "assessment",
+        courseTitle,
+        topicTitle: moduleTitle,
+        question: question.question,
+        learnerText: userAnswer,
+        correctAnswer: question.correctAnswer,
+        metadata: { type: question.type },
+      },
+      tdiRules,
+    );
 
     if (intervention) {
       setActiveIntervention(intervention);
       setPendingInterventionForQuestionId(question.id);
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        courseId: courseId ?? null,
+        moduleId: moduleId ?? null,
+        learnerInput: userAnswer,
+        context: "interactive_assessment",
+      }).catch(() => {});
       return;
     }
 
@@ -194,7 +215,19 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       <TeachingDecisionIntervention
         open={!!activeIntervention}
         intervention={activeIntervention}
-        onAcknowledge={() => {
+        onAcknowledge={(learnerResponse) => {
+          if (activeIntervention) {
+            void logTDIEvent({
+              action: "acknowledged",
+              intervention: activeIntervention,
+              courseId: courseId ?? null,
+              moduleId: moduleId ?? null,
+              learnerInput: userAnswer,
+              learnerResponse: learnerResponse ?? null,
+              context: "interactive_assessment",
+            }).catch(() => {});
+          }
+
           // Only apply if we're still on the same question
           if (pendingInterventionForQuestionId === question.id) {
             setShowFeedback(true);
@@ -203,6 +236,17 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
           setPendingInterventionForQuestionId(null);
         }}
         onSkip={() => {
+          if (activeIntervention) {
+            void logTDIEvent({
+              action: "skipped",
+              intervention: activeIntervention,
+              courseId: courseId ?? null,
+              moduleId: moduleId ?? null,
+              learnerInput: userAnswer,
+              context: "interactive_assessment",
+            }).catch(() => {});
+          }
+
           if (pendingInterventionForQuestionId === question.id) {
             setShowFeedback(true);
           }
