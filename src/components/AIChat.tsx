@@ -96,7 +96,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
 
       if (!reader) throw new Error("No response stream");
 
-      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
+      setMessages([...baseMessages, { role: "assistant", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -116,7 +116,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
               if (content) {
                 assistantMessage += content;
                 setMessages([
-                  ...updatedMessages,
+                  ...baseMessages,
                   { role: "assistant", content: assistantMessage },
                 ]);
               }
@@ -134,10 +134,45 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
         variant: "destructive",
       });
       // Remove the empty assistant message if error occurred
-      setMessages(updatedMessages);
+      setMessages(baseMessages);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: input };
+    const updatedMessages = [...messages, userMessage];
+    
+    setMessages(updatedMessages);
+    setInput("");
+
+    // Check for TDI intervention
+    const intervention = diagnoseTDI(
+      {
+        mode: "chat",
+        learnerText: userMessage.content,
+      },
+      tdiRules,
+    );
+
+    if (intervention) {
+      setActiveIntervention(intervention);
+      setPendingMessages(updatedMessages);
+      setPendingInput(userMessage.content);
+      
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        learnerInput: userMessage.content,
+        context: "ai_chat",
+      }).catch(() => {});
+      return;
+    }
+
+    await startStream(updatedMessages);
   };
 
   const chatContent = (
