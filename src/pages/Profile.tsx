@@ -8,10 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User, Linkedin, Github, Twitter, LogOut } from "lucide-react";
+import { Upload, User, Linkedin, Github, Twitter, LogOut, Brain } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { TDIHistoryPanel } from "@/components/TDIHistoryDrawer";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
