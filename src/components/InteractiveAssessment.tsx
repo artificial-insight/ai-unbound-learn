@@ -348,9 +348,10 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
                   <p className="text-sm text-foreground leading-relaxed">
                     {question.explanation}
                   </p>
-                  {!isCorrect && (
+                  {!isCorrect && !!question.correctAnswer && (
                     <p className="text-sm text-muted-foreground mt-2">
-                      The correct answer was: <span className="font-medium text-foreground">{question.correctAnswer}</span>
+                      The correct answer was:{" "}
+                      <span className="font-medium text-foreground">{question.correctAnswer}</span>
                     </p>
                   )}
                 </div>
