@@ -334,10 +334,9 @@ export function TDIHistoryPanel({ courseId }: { courseId?: string }) {
           <style>
             body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 24px; }
             h1 { font-size: 18px; margin: 0 0 12px; }
-            p { color: #444; margin: 0 0 16px; }
             table { width: 100%; border-collapse: collapse; font-size: 12px; }
             th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
-            th { background: #f5f5f5; text-align: left; }
+            th { text-align: left; }
           </style>
         </head>
         <body>
