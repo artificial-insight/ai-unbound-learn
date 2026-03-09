@@ -118,39 +118,84 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
     }, 1000);
   };
 
-  const handleSubmitQuestion = async () => {
-    if (!question.trim()) return;
-
-    // Add student question
-    setMessages(prev => [...prev, {
-      role: 'student',
-      content: question,
-      timestamp: new Date()
-    }]);
-
-    setQuestion('');
+  const simulateTeacherResponse = (asked: string) => {
     setIsTyping(true);
 
     // Simulate AI response
     setTimeout(() => {
       const responses = [
-        `Great question! ${question.includes('why') ? 'The reason is...' : 'Here\'s what you need to know...'} This concept works by connecting different pieces together. Think of it as a puzzle where each piece has a specific place.`,
-        `I love that you asked that! Let me explain: When you ${question.toLowerCase()}, you're essentially creating a bridge between two ideas. This is fundamental because it allows you to...`,
-        `Excellent thinking! To answer your question about "${question.slice(0, 30)}...", we need to understand that this is all about relationships. Each element depends on others, creating a system.`
+        `Great question! ${asked.toLowerCase().includes("why") ? "The reason is..." : "Here's what you need to know..."} This concept works by connecting different pieces together. Think of it as a puzzle where each piece has a specific place.`,
+        `I love that you asked that! Let me explain: When you ${asked.toLowerCase()}, you're essentially creating a bridge between two ideas. This is fundamental because it allows you to...`,
+        `Excellent thinking! To answer your question about "${asked.slice(0, 30)}...", we need to understand that this is all about relationships. Each element depends on others, creating a system.`,
       ];
 
-      setMessages(prev => [...prev, {
-        role: 'teacher',
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date(),
-        explanationType: 'simple'
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "teacher",
+          content: responses[Math.floor(Math.random() * responses.length)],
+          timestamp: new Date(),
+          explanationType: "simple",
+        },
+      ]);
       setIsTyping(false);
 
-      if (onQuestionSubmit) {
-        onQuestionSubmit(question);
-      }
+      onQuestionSubmit?.(asked);
     }, 1500);
+  };
+
+  const handleSubmitQuestion = async () => {
+    const asked = question.trim();
+    if (!asked) return;
+
+    // Add student question
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "student",
+        content: asked,
+        timestamp: new Date(),
+      },
+    ]);
+
+    setQuestion("");
+
+    // TDI: deterministic, auditable intervention before we answer
+    const intervention = diagnoseTDI({
+      mode: "chat",
+      courseTitle,
+      topicTitle,
+      learnerText: asked,
+    });
+
+    if (intervention) {
+      setPendingQuestionForIntervention(asked);
+      setActiveIntervention(intervention);
+      return;
+    }
+
+    simulateTeacherResponse(asked);
+  };
+
+  const handleAcknowledgeIntervention = (learnerResponse?: string) => {
+    if (!activeIntervention) return;
+
+    const asked = pendingQuestionForIntervention;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "teacher",
+        content: formatTDITranscript(activeIntervention, learnerResponse),
+        timestamp: new Date(),
+        explanationType: "socratic",
+      },
+    ]);
+
+    setActiveIntervention(null);
+    setPendingQuestionForIntervention(null);
+
+    if (asked) simulateTeacherResponse(asked);
   };
 
   return (
