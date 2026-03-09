@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import { diagnoseTDI, type TDIIntervention } from "@/lib/tdi";
 import { CheckCircle2, XCircle, Lightbulb, Code, MessageSquare, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,7 +36,10 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   const [hintsUsed, setHintsUsed] = useState(0);
   const [score, setScore] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingInterventionForQuestionId, setPendingInterventionForQuestionId] = useState<string | null>(null);
 
+  const isInterrupted = !!activeIntervention;
   const questions: Question[] = [
     {
       id: '1',
@@ -81,16 +86,35 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   const question = questions[currentQuestion];
 
   const handleSubmit = () => {
-    const correct = question.correctAnswer 
-      ? userAnswer === question.correctAnswer 
+    const correct = question.correctAnswer
+      ? userAnswer === question.correctAnswer
       : userAnswer.length > 20; // For explanation questions, just check length
 
     setIsCorrect(correct);
-    setShowFeedback(true);
-    
+
     if (correct) {
+      setShowFeedback(true);
       setScore(score + 1);
+      return;
     }
+
+    const intervention = diagnoseTDI({
+      mode: "assessment",
+      courseTitle,
+      topicTitle: moduleTitle,
+      question: question.question,
+      learnerText: userAnswer,
+      correctAnswer: question.correctAnswer,
+      metadata: { type: question.type },
+    });
+
+    if (intervention) {
+      setActiveIntervention(intervention);
+      setPendingInterventionForQuestionId(question.id);
+      return;
+    }
+
+    setShowFeedback(true);
   };
 
   const handleNext = () => {
@@ -99,6 +123,8 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       setUserAnswer("");
       setShowFeedback(false);
       setHintsUsed(0);
+      setActiveIntervention(null);
+      setPendingInterventionForQuestionId(null);
     } else {
       setCompleted(true);
     }
@@ -164,7 +190,28 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   }
 
   return (
-    <Card className="border-2">
+    <>
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={() => {
+          // Only apply if we're still on the same question
+          if (pendingInterventionForQuestionId === question.id) {
+            setShowFeedback(true);
+          }
+          setActiveIntervention(null);
+          setPendingInterventionForQuestionId(null);
+        }}
+        onSkip={() => {
+          if (pendingInterventionForQuestionId === question.id) {
+            setShowFeedback(true);
+          }
+          setActiveIntervention(null);
+          setPendingInterventionForQuestionId(null);
+        }}
+      />
+
+      <Card className="border-2">
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <Badge variant="outline" className="gap-2">
@@ -183,8 +230,8 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Question Input */}
-        {question.type === 'mcq' && question.options && (
-          <RadioGroup value={userAnswer} onValueChange={setUserAnswer} disabled={showFeedback}>
+          {question.type === 'mcq' && question.options && (
+          <RadioGroup value={userAnswer} onValueChange={setUserAnswer} disabled={showFeedback || isInterrupted}>
             <div className="space-y-3">
               {question.options.map((option, idx) => (
                 <div 
@@ -215,7 +262,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   // Your code here
 }"
               className="font-mono text-sm min-h-[200px]"
-              disabled={showFeedback}
+              disabled={showFeedback || isInterrupted}
             />
           </div>
         )}
@@ -228,7 +275,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
               onChange={(e) => setUserAnswer(e.target.value)}
               placeholder="Explain in your own words..."
               className="min-h-[150px]"
-              disabled={showFeedback}
+              disabled={showFeedback || isInterrupted}
             />
             <p className="text-xs text-muted-foreground">
               Aim for at least 3-4 sentences for a complete answer
@@ -237,7 +284,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
         )}
 
         {/* Hints Section */}
-        {!showFeedback && hintsUsed < question.hints.length && (
+        {!showFeedback && !isInterrupted && hintsUsed < question.hints.length && (
           <div className="flex items-center gap-3">
             <Button 
               variant="outline" 
@@ -301,9 +348,10 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
                   <p className="text-sm text-foreground leading-relaxed">
                     {question.explanation}
                   </p>
-                  {!isCorrect && (
+                  {!isCorrect && !!question.correctAnswer && (
                     <p className="text-sm text-muted-foreground mt-2">
-                      The correct answer was: <span className="font-medium text-foreground">{question.correctAnswer}</span>
+                      The correct answer was:{" "}
+                      <span className="font-medium text-foreground">{question.correctAnswer}</span>
                     </p>
                   )}
                 </div>
@@ -317,7 +365,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
           {!showFeedback ? (
             <Button 
               onClick={handleSubmit} 
-              disabled={!userAnswer}
+              disabled={!userAnswer || isInterrupted}
               className="flex-1 bg-gradient-hero"
             >
               Submit Answer
@@ -332,6 +380,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
           )}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </>
   );
 };

@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Brain, 
-  Lightbulb, 
-  Code, 
-  Image as ImageIcon, 
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import { diagnoseTDI, formatTDITranscript, type TDIIntervention } from "@/lib/tdi";
+import {
+  Brain,
+  Lightbulb,
+  Code,
+  Image as ImageIcon,
   MessageSquare,
   Sparkles,
   Send,
-  Volume2
+  Volume2,
 } from "lucide-react";
 
 interface Message {
@@ -39,7 +41,8 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
   ]);
   const [question, setQuestion] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingQuestionForIntervention, setPendingQuestionForIntervention] = useState<string | null>(null);
   const explanationStyles = [
     {
       id: 'simple',
@@ -74,7 +77,7 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
       label: 'Socratic',
       icon: MessageSquare,
       description: 'Guide me with questions',
-      color: 'text-purple-500'
+      color: 'text-foreground'
     }
   ];
 
@@ -115,49 +118,106 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
     }, 1000);
   };
 
-  const handleSubmitQuestion = async () => {
-    if (!question.trim()) return;
-
-    // Add student question
-    setMessages(prev => [...prev, {
-      role: 'student',
-      content: question,
-      timestamp: new Date()
-    }]);
-
-    setQuestion('');
+  const simulateTeacherResponse = (asked: string) => {
     setIsTyping(true);
 
     // Simulate AI response
     setTimeout(() => {
       const responses = [
-        `Great question! ${question.includes('why') ? 'The reason is...' : 'Here\'s what you need to know...'} This concept works by connecting different pieces together. Think of it as a puzzle where each piece has a specific place.`,
-        `I love that you asked that! Let me explain: When you ${question.toLowerCase()}, you're essentially creating a bridge between two ideas. This is fundamental because it allows you to...`,
-        `Excellent thinking! To answer your question about "${question.slice(0, 30)}...", we need to understand that this is all about relationships. Each element depends on others, creating a system.`
+        `Great question! ${asked.toLowerCase().includes("why") ? "The reason is..." : "Here's what you need to know..."} This concept works by connecting different pieces together. Think of it as a puzzle where each piece has a specific place.`,
+        `I love that you asked that! Let me explain: When you ${asked.toLowerCase()}, you're essentially creating a bridge between two ideas. This is fundamental because it allows you to...`,
+        `Excellent thinking! To answer your question about "${asked.slice(0, 30)}...", we need to understand that this is all about relationships. Each element depends on others, creating a system.`,
       ];
 
-      setMessages(prev => [...prev, {
-        role: 'teacher',
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date(),
-        explanationType: 'simple'
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "teacher",
+          content: responses[Math.floor(Math.random() * responses.length)],
+          timestamp: new Date(),
+          explanationType: "simple",
+        },
+      ]);
       setIsTyping(false);
 
-      if (onQuestionSubmit) {
-        onQuestionSubmit(question);
-      }
+      onQuestionSubmit?.(asked);
     }, 1500);
+  };
+
+  const handleSubmitQuestion = async () => {
+    const asked = question.trim();
+    if (!asked) return;
+
+    // Add student question
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "student",
+        content: asked,
+        timestamp: new Date(),
+      },
+    ]);
+
+    setQuestion("");
+
+    // TDI: deterministic, auditable intervention before we answer
+    const intervention = diagnoseTDI({
+      mode: "chat",
+      courseTitle,
+      topicTitle,
+      learnerText: asked,
+    });
+
+    if (intervention) {
+      setPendingQuestionForIntervention(asked);
+      setActiveIntervention(intervention);
+      return;
+    }
+
+    simulateTeacherResponse(asked);
+  };
+
+  const handleAcknowledgeIntervention = (learnerResponse?: string) => {
+    if (!activeIntervention) return;
+
+    const asked = pendingQuestionForIntervention;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "teacher",
+        content: formatTDITranscript(activeIntervention, learnerResponse),
+        timestamp: new Date(),
+        explanationType: "socratic",
+      },
+    ]);
+
+    setActiveIntervention(null);
+    setPendingQuestionForIntervention(null);
+
+    if (asked) simulateTeacherResponse(asked);
   };
 
   return (
     <div className="space-y-6">
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={handleAcknowledgeIntervention}
+        onSkip={() => {
+          const asked = pendingQuestionForIntervention;
+          setActiveIntervention(null);
+          setPendingQuestionForIntervention(null);
+          if (asked) simulateTeacherResponse(asked);
+        }}
+      />
+
       {/* AI Teacher Header */}
       <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-hero flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+              <Brain className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
               <CardTitle>Your AI Teacher</CardTitle>
@@ -184,9 +244,9 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
                     : 'bg-accent'
                 }`}>
                   {msg.role === 'teacher' ? (
-                    <Brain className="w-4 h-4 text-white" />
+                    <Brain className="w-4 h-4 text-primary-foreground" />
                   ) : (
-                    <span className="text-white text-xs font-bold">You</span>
+                    <span className="text-accent-foreground text-xs font-bold">You</span>
                   )}
                 </div>
                 <div className={`flex-1 ${msg.role === 'student' ? 'text-right' : ''}`}>
