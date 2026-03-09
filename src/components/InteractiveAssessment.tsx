@@ -284,7 +284,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
         )}
 
         {/* Hints Section */}
-        {!showFeedback && hintsUsed < question.hints.length && (
+        {!showFeedback && !isInterrupted && hintsUsed < question.hints.length && (
           <div className="flex items-center gap-3">
             <Button 
               variant="outline" 
