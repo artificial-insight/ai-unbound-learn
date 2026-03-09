@@ -24,10 +24,11 @@ interface Message {
 interface AIChatProps {
   courseTitle: string;
   topicTitle?: string;
+  courseId?: string | null;
   variant?: "floating" | "embedded";
 }
 
-export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChatProps) => {
+export const AIChat = ({ courseTitle, topicTitle, courseId = null, variant = "floating" }: AIChatProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -162,10 +163,11 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
       setActiveIntervention(intervention);
       setPendingMessages(updatedMessages);
       setPendingInput(userMessage.content);
-      
+
       void logTDIEvent({
         action: "triggered",
         intervention,
+        courseId,
         learnerInput: userMessage.content,
         context: "ai_chat",
       }).catch(() => {});
@@ -306,6 +308,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
             void logTDIEvent({
               action: "acknowledged",
               intervention: activeIntervention,
+              courseId,
               learnerInput: pendingInput ?? null,
               learnerResponse: learnerResponse ?? null,
               context: "ai_chat",
@@ -323,6 +326,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
             void logTDIEvent({
               action: "skipped",
               intervention: activeIntervention,
+              courseId,
               learnerInput: pendingInput ?? null,
               context: "ai_chat",
             }).catch(() => {});
@@ -361,6 +365,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
           void logTDIEvent({
             action: "acknowledged",
             intervention: activeIntervention,
+            courseId,
             learnerInput: pendingInput ?? null,
             learnerResponse: learnerResponse ?? null,
             context: "ai_chat",
@@ -378,6 +383,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
           void logTDIEvent({
             action: "skipped",
             intervention: activeIntervention,
+            courseId,
             learnerInput: pendingInput ?? null,
             context: "ai_chat",
           }).catch(() => {});
