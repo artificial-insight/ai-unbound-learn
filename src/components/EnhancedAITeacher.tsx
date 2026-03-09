@@ -200,12 +200,24 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
 
   return (
     <div className="space-y-6">
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={handleAcknowledgeIntervention}
+        onSkip={() => {
+          const asked = pendingQuestionForIntervention;
+          setActiveIntervention(null);
+          setPendingQuestionForIntervention(null);
+          if (asked) simulateTeacherResponse(asked);
+        }}
+      />
+
       {/* AI Teacher Header */}
       <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-hero flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+              <Brain className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
               <CardTitle>Your AI Teacher</CardTitle>
