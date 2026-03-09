@@ -48,6 +48,8 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle, courseId, modu
       .catch(() => setTdiRules(null));
   }, [courseId, moduleId]);
 
+  const isInterrupted = !!activeIntervention;
+
   const questions: Question[] = [
     {
       id: '1',
