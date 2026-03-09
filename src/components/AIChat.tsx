@@ -24,10 +24,11 @@ interface Message {
 interface AIChatProps {
   courseTitle: string;
   topicTitle?: string;
+  courseId?: string | null;
   variant?: "floating" | "embedded";
 }
 
-export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChatProps) => {
+export const AIChat = ({ courseTitle, topicTitle, courseId = null, variant = "floating" }: AIChatProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
