@@ -6,6 +6,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Loader2, X, Maximize2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import {
+  diagnoseTDI,
+  formatTDITranscript,
+  loadTDIRules,
+  logTDIEvent,
+  type TDILoadedRule,
+  type TDIIntervention,
+} from "@/lib/tdi";
 
 interface Message {
   role: "user" | "assistant";
