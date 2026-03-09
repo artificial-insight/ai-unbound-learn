@@ -6,6 +6,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Loader2, X, Maximize2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import {
+  diagnoseTDI,
+  formatTDITranscript,
+  loadTDIRules,
+  logTDIEvent,
+  type TDILoadedRule,
+  type TDIIntervention,
+} from "@/lib/tdi";
 
 interface Message {
   role: "user" | "assistant";
@@ -27,19 +36,24 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingMessages, setPendingMessages] = useState<Message[] | null>(null);
+  const [pendingInput, setPendingInput] = useState<string | null>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  useEffect(() => {
+    loadTDIRules({ mode: "chat" })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, []);
 
-    const userMessage: Message = { role: "user", content: input };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInput("");
+  const startStream = async (baseMessages: Message[]) => {
     setIsLoading(true);
-
+    
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
       
@@ -50,7 +64,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: baseMessages,
           courseTitle,
           topicTitle,
         }),
@@ -82,7 +96,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
 
       if (!reader) throw new Error("No response stream");
 
-      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
+      setMessages([...baseMessages, { role: "assistant", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -102,7 +116,7 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
               if (content) {
                 assistantMessage += content;
                 setMessages([
-                  ...updatedMessages,
+                  ...baseMessages,
                   { role: "assistant", content: assistantMessage },
                 ]);
               }
@@ -120,10 +134,45 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
         variant: "destructive",
       });
       // Remove the empty assistant message if error occurred
-      setMessages(updatedMessages);
+      setMessages(baseMessages);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: input };
+    const updatedMessages = [...messages, userMessage];
+    
+    setMessages(updatedMessages);
+    setInput("");
+
+    // Check for TDI intervention
+    const intervention = diagnoseTDI(
+      {
+        mode: "chat",
+        learnerText: userMessage.content,
+      },
+      tdiRules,
+    );
+
+    if (intervention) {
+      setActiveIntervention(intervention);
+      setPendingMessages(updatedMessages);
+      setPendingInput(userMessage.content);
+      
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        learnerInput: userMessage.content,
+        context: "ai_chat",
+      }).catch(() => {});
+      return;
+    }
+
+    await startStream(updatedMessages);
   };
 
   const chatContent = (
@@ -239,14 +288,109 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
 
   if (variant === "embedded") {
     return (
-      <Card className="h-[500px] flex flex-col">
-        {chatContent}
-      </Card>
+      <>
+        <TeachingDecisionIntervention
+          open={!!activeIntervention}
+          intervention={activeIntervention}
+          onAcknowledge={(learnerResponse) => {
+            if (!activeIntervention || !pendingMessages) return;
+
+            const tdiMessage: Message = {
+              role: "assistant",
+              content: formatTDITranscript(activeIntervention, learnerResponse),
+            };
+
+            const nextMessages = [...pendingMessages, tdiMessage];
+            setMessages(nextMessages);
+
+            void logTDIEvent({
+              action: "acknowledged",
+              intervention: activeIntervention,
+              learnerInput: pendingInput ?? null,
+              learnerResponse: learnerResponse ?? null,
+              context: "ai_chat",
+            }).catch(() => {});
+
+            setActiveIntervention(null);
+            setPendingMessages(null);
+            setPendingInput(null);
+
+            void startStream(nextMessages);
+          }}
+          onSkip={() => {
+            if (!activeIntervention || !pendingMessages) return;
+
+            void logTDIEvent({
+              action: "skipped",
+              intervention: activeIntervention,
+              learnerInput: pendingInput ?? null,
+              context: "ai_chat",
+            }).catch(() => {});
+
+            const nextMessages = pendingMessages;
+            setActiveIntervention(null);
+            setPendingMessages(null);
+            setPendingInput(null);
+
+            void startStream(nextMessages);
+          }}
+        />
+        <Card className="h-[500px] flex flex-col">
+          {chatContent}
+        </Card>
+      </>
     );
   }
 
   return (
     <>
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={(learnerResponse) => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          const tdiMessage: Message = {
+            role: "assistant",
+            content: formatTDITranscript(activeIntervention, learnerResponse),
+          };
+
+          const nextMessages = [...pendingMessages, tdiMessage];
+          setMessages(nextMessages);
+
+          void logTDIEvent({
+            action: "acknowledged",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            learnerResponse: learnerResponse ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+        onSkip={() => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          void logTDIEvent({
+            action: "skipped",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          const nextMessages = pendingMessages;
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+      />
+      
       <AnimatePresence>
         {isOpen && (
           <motion.div
