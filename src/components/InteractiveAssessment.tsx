@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -7,9 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
-import { diagnoseTDI, type TDIIntervention } from "@/lib/tdi";
-import { CheckCircle2, XCircle, Lightbulb, Code, MessageSquare, CheckSquare } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { diagnoseTDI, loadTDIRules, logTDIEvent, type TDILoadedRule, type TDIIntervention } from "@/lib/tdi";
+import { CheckCircle2, XCircle, Code, MessageSquare, CheckSquare } from "lucide-react";
+import { motion } from "framer-motion";
 
 type QuestionType = 'mcq' | 'coding' | 'explanation';
 
