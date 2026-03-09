@@ -123,6 +123,8 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
       setUserAnswer("");
       setShowFeedback(false);
       setHintsUsed(0);
+      setActiveIntervention(null);
+      setPendingInterventionForQuestionId(null);
     } else {
       setCompleted(true);
     }
