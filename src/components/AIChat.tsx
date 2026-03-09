@@ -175,6 +175,59 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
     await startStream(updatedMessages);
   };
 
+  return (
+    <>
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={(learnerResponse) => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          const tdiMessage: Message = {
+            role: "assistant",
+            content: formatTDITranscript(activeIntervention, learnerResponse),
+          };
+
+          const nextMessages = [...pendingMessages, tdiMessage];
+          setMessages(nextMessages);
+
+          void logTDIEvent({
+            action: "acknowledged",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            learnerResponse: learnerResponse ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+        onSkip={() => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          void logTDIEvent({
+            action: "skipped",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          const nextMessages = pendingMessages;
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+      />
+      
+      {chatContent}
+    </>
+  );
+
   const chatContent = (
     <>
       <CardHeader className="border-b pb-3">
