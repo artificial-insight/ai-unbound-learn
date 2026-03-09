@@ -48,10 +48,18 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId,
       explanationType: 'simple'
     }
   ]);
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
   const [pendingQuestionForIntervention, setPendingQuestionForIntervention] = useState<string | null>(null);
+  const [tdiRules, setTdiRules] = useState<TDILoadedRule[] | null>(null);
+
+  useEffect(() => {
+    loadTDIRules({ mode: "chat", courseId, moduleId })
+      .then(setTdiRules)
+      .catch(() => setTdiRules(null));
+  }, [courseId, moduleId]);
+
   const explanationStyles = [
     {
       id: 'simple',
