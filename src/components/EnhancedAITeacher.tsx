@@ -178,16 +178,27 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId,
     setQuestion("");
 
     // TDI: deterministic, auditable intervention before we answer
-    const intervention = diagnoseTDI({
-      mode: "chat",
-      courseTitle,
-      topicTitle,
-      learnerText: asked,
-    });
+    const intervention = diagnoseTDI(
+      {
+        mode: "chat",
+        courseTitle,
+        topicTitle,
+        learnerText: asked,
+      },
+      tdiRules,
+    );
 
     if (intervention) {
       setPendingQuestionForIntervention(asked);
       setActiveIntervention(intervention);
+      void logTDIEvent({
+        action: "triggered",
+        intervention,
+        courseId: courseId ?? null,
+        moduleId: moduleId ?? null,
+        learnerInput: asked,
+        context: "enhanced_ai_teacher",
+      }).catch(() => {});
       return;
     }
 
