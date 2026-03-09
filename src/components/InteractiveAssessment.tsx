@@ -380,6 +380,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
           )}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </>
   );
 };

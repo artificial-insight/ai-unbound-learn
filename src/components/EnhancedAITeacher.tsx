@@ -244,9 +244,9 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, onQuestionSubmit }:
                     : 'bg-accent'
                 }`}>
                   {msg.role === 'teacher' ? (
-                    <Brain className="w-4 h-4 text-white" />
+                    <Brain className="w-4 h-4 text-primary-foreground" />
                   ) : (
-                    <span className="text-white text-xs font-bold">You</span>
+                    <span className="text-accent-foreground text-xs font-bold">You</span>
                   )}
                 </div>
                 <div className={`flex-1 ${msg.role === 'student' ? 'text-right' : ''}`}>
