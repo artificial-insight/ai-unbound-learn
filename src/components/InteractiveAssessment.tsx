@@ -190,7 +190,28 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   }
 
   return (
-    <Card className="border-2">
+    <>
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={() => {
+          // Only apply if we're still on the same question
+          if (pendingInterventionForQuestionId === question.id) {
+            setShowFeedback(true);
+          }
+          setActiveIntervention(null);
+          setPendingInterventionForQuestionId(null);
+        }}
+        onSkip={() => {
+          if (pendingInterventionForQuestionId === question.id) {
+            setShowFeedback(true);
+          }
+          setActiveIntervention(null);
+          setPendingInterventionForQuestionId(null);
+        }}
+      />
+
+      <Card className="border-2">
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <Badge variant="outline" className="gap-2">
