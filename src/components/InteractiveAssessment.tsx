@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import { diagnoseTDI, type TDIIntervention } from "@/lib/tdi";
 import { CheckCircle2, XCircle, Lightbulb, Code, MessageSquare, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

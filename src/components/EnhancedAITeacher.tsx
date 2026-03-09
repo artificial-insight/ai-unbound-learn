@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Brain, 
-  Lightbulb, 
-  Code, 
-  Image as ImageIcon, 
+import { TeachingDecisionIntervention } from "@/components/TeachingDecisionIntervention";
+import { diagnoseTDI, formatTDITranscript, type TDIIntervention } from "@/lib/tdi";
+import {
+  Brain,
+  Lightbulb,
+  Code,
+  Image as ImageIcon,
   MessageSquare,
   Sparkles,
   Send,
-  Volume2
+  Volume2,
 } from "lucide-react";
 
 interface Message {
