@@ -37,8 +37,8 @@ type CourseOption = { id: string; title: string };
 
 function csvEscape(v: unknown) {
   const s = v == null ? "" : String(v);
-  const needsQuotes = /[\n\r,\"]/g.test(s);
-  const escaped = s.replace(/\"/g, '""');
+  const needsQuotes = /[\n\r,"]/.test(s);
+  const escaped = s.replace(/"/g, '""');
   return needsQuotes ? `"${escaped}"` : escaped;
 }
 
