@@ -275,7 +275,7 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
               onChange={(e) => setUserAnswer(e.target.value)}
               placeholder="Explain in your own words..."
               className="min-h-[150px]"
-              disabled={showFeedback}
+              disabled={showFeedback || isInterrupted}
             />
             <p className="text-xs text-muted-foreground">
               Aim for at least 3-4 sentences for a complete answer
