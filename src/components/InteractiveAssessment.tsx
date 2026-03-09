@@ -36,7 +36,10 @@ export const InteractiveAssessment = ({ courseTitle, moduleTitle }: InteractiveA
   const [hintsUsed, setHintsUsed] = useState(0);
   const [score, setScore] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [activeIntervention, setActiveIntervention] = useState<TDIIntervention | null>(null);
+  const [pendingInterventionForQuestionId, setPendingInterventionForQuestionId] = useState<string | null>(null);
 
+  const isInterrupted = !!activeIntervention;
   const questions: Question[] = [
     {
       id: '1',
