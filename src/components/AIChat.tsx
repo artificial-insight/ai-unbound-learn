@@ -175,59 +175,6 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
     await startStream(updatedMessages);
   };
 
-  return (
-    <>
-      <TeachingDecisionIntervention
-        open={!!activeIntervention}
-        intervention={activeIntervention}
-        onAcknowledge={(learnerResponse) => {
-          if (!activeIntervention || !pendingMessages) return;
-
-          const tdiMessage: Message = {
-            role: "assistant",
-            content: formatTDITranscript(activeIntervention, learnerResponse),
-          };
-
-          const nextMessages = [...pendingMessages, tdiMessage];
-          setMessages(nextMessages);
-
-          void logTDIEvent({
-            action: "acknowledged",
-            intervention: activeIntervention,
-            learnerInput: pendingInput ?? null,
-            learnerResponse: learnerResponse ?? null,
-            context: "ai_chat",
-          }).catch(() => {});
-
-          setActiveIntervention(null);
-          setPendingMessages(null);
-          setPendingInput(null);
-
-          void startStream(nextMessages);
-        }}
-        onSkip={() => {
-          if (!activeIntervention || !pendingMessages) return;
-
-          void logTDIEvent({
-            action: "skipped",
-            intervention: activeIntervention,
-            learnerInput: pendingInput ?? null,
-            context: "ai_chat",
-          }).catch(() => {});
-
-          const nextMessages = pendingMessages;
-          setActiveIntervention(null);
-          setPendingMessages(null);
-          setPendingInput(null);
-
-          void startStream(nextMessages);
-        }}
-      />
-      
-      {chatContent}
-    </>
-  );
-
   const chatContent = (
     <>
       <CardHeader className="border-b pb-3">
@@ -341,14 +288,109 @@ export const AIChat = ({ courseTitle, topicTitle, variant = "floating" }: AIChat
 
   if (variant === "embedded") {
     return (
-      <Card className="h-[500px] flex flex-col">
-        {chatContent}
-      </Card>
+      <>
+        <TeachingDecisionIntervention
+          open={!!activeIntervention}
+          intervention={activeIntervention}
+          onAcknowledge={(learnerResponse) => {
+            if (!activeIntervention || !pendingMessages) return;
+
+            const tdiMessage: Message = {
+              role: "assistant",
+              content: formatTDITranscript(activeIntervention, learnerResponse),
+            };
+
+            const nextMessages = [...pendingMessages, tdiMessage];
+            setMessages(nextMessages);
+
+            void logTDIEvent({
+              action: "acknowledged",
+              intervention: activeIntervention,
+              learnerInput: pendingInput ?? null,
+              learnerResponse: learnerResponse ?? null,
+              context: "ai_chat",
+            }).catch(() => {});
+
+            setActiveIntervention(null);
+            setPendingMessages(null);
+            setPendingInput(null);
+
+            void startStream(nextMessages);
+          }}
+          onSkip={() => {
+            if (!activeIntervention || !pendingMessages) return;
+
+            void logTDIEvent({
+              action: "skipped",
+              intervention: activeIntervention,
+              learnerInput: pendingInput ?? null,
+              context: "ai_chat",
+            }).catch(() => {});
+
+            const nextMessages = pendingMessages;
+            setActiveIntervention(null);
+            setPendingMessages(null);
+            setPendingInput(null);
+
+            void startStream(nextMessages);
+          }}
+        />
+        <Card className="h-[500px] flex flex-col">
+          {chatContent}
+        </Card>
+      </>
     );
   }
 
   return (
     <>
+      <TeachingDecisionIntervention
+        open={!!activeIntervention}
+        intervention={activeIntervention}
+        onAcknowledge={(learnerResponse) => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          const tdiMessage: Message = {
+            role: "assistant",
+            content: formatTDITranscript(activeIntervention, learnerResponse),
+          };
+
+          const nextMessages = [...pendingMessages, tdiMessage];
+          setMessages(nextMessages);
+
+          void logTDIEvent({
+            action: "acknowledged",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            learnerResponse: learnerResponse ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+        onSkip={() => {
+          if (!activeIntervention || !pendingMessages) return;
+
+          void logTDIEvent({
+            action: "skipped",
+            intervention: activeIntervention,
+            learnerInput: pendingInput ?? null,
+            context: "ai_chat",
+          }).catch(() => {});
+
+          const nextMessages = pendingMessages;
+          setActiveIntervention(null);
+          setPendingMessages(null);
+          setPendingInput(null);
+
+          void startStream(nextMessages);
+        }}
+      />
+      
       <AnimatePresence>
         {isOpen && (
           <motion.div
