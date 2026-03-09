@@ -220,6 +220,16 @@ export const EnhancedAITeacher = ({ courseTitle, topicTitle, courseId, moduleId,
       },
     ]);
 
+    void logTDIEvent({
+      action: "acknowledged",
+      intervention: activeIntervention,
+      courseId: courseId ?? null,
+      moduleId: moduleId ?? null,
+      learnerInput: asked ?? null,
+      learnerResponse: learnerResponse ?? null,
+      context: "enhanced_ai_teacher",
+    }).catch(() => {});
+
     setActiveIntervention(null);
     setPendingQuestionForIntervention(null);
 
